@@ -51,12 +51,15 @@ export function usePlanner() {
   const [notice, setNotice] = useState<{ text: string; level: "info" | "error" } | null>(null);
   const [changes, setChanges] = useState<string[]>([]);
   const [startedAt, setStartedAt] = useState<number | null>(null);
+  const [runAt, setRunAt] = useState<number | null>(null); // server time of the latest run (dates the plan)
+  const [replaying, setReplaying] = useState(false);
   const lastReq = useRef<Request | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   const handle = useCallback((e: TraceEvent) => {
     switch (e.type) {
       case "run_start":
+        setRunAt(e.at);
         setRunId(e.runId);
         setPromptVersions(e.promptVersions);
         break;
@@ -107,6 +110,7 @@ export function usePlanner() {
       abortRef.current = ac;
       lastReq.current = req;
       setStatus("running");
+      setReplaying(false);
       setStartedAt(Date.now());
       setQuestions([]);
       setNotice(null);
@@ -182,10 +186,11 @@ export function usePlanner() {
     if (!res?.ok) return;
     const data = (await res.json()) as { events: TraceEvent[] };
     setTrace([{ kind: "divider", text: "Replay of a recorded run" }]);
+    setReplaying(true);
     setStatus("running");
     for (const e of data.events) handle(e);
     setNotice({ text: "This is a replay of a recorded production run, shown instantly. Plan your own Saturday to run the live agent.", level: "info" });
   }, [handle]);
 
-  return { status, trace, plan, prefs, stats, runId, promptVersions, questions, notice, changes, startedAt, start, answer, refine, replay };
+  return { status, trace, plan, prefs, stats, runId, promptVersions, questions, notice, changes, startedAt, runAt, replaying, start, answer, refine, replay };
 }

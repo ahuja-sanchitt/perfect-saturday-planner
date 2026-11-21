@@ -16,9 +16,15 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#1b1a2e" };
 
+const THEME_SCRIPT = `try{var q=new URLSearchParams(location.search),m=q.get("motion");if(m==="off")document.documentElement.dataset.motion="off"}catch(e){}`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${body.variable} ${display.variable} ${mono.variable} h-full antialiased`}>
+    <html lang="en" suppressHydrationWarning className={`${body.variable} ${display.variable} ${mono.variable} h-full antialiased`}>
+      <head>
+        {/* Review aid: ?motion=off settles animations (used for screenshots). Applied before paint. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body className="min-h-full">{children}</body>
     </html>
   );

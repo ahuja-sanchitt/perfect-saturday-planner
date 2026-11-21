@@ -8,7 +8,7 @@
  *   accent (magenta)      the primary action and focus only
  *   console (teal)        owns the whole agent-console region
  *   marquee (yellow)      showtime numerals and console highlights
- * Light by default: people plan on a phone in daylight.
+ * Light only: people plan on a phone in daylight; there is no night variant.
  */
 :root {
   --bg: #fafaf8;
@@ -40,26 +40,8 @@
   --c-info: #f2c230;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #141327;
-    --surface: #1e1c35;
-    --subtle: #29274a;
-    --ink: #f3f1ea;
-    --muted: #bab7cd;
-    --line: #2f2d4d;
-    --line-strong: #43416a;
-    --accent: #e8679a;
-    --accent-ink: #1b0d16;
-    --accent-soft: #3a1f33;
-    --good: #74c9d2;
-    --warn: #f4a46c;
-    --bad: #f28b82;
-    --night: #0e0d1d;
-    --c-bg: #0f3e43;
-    --c-line: #1b5960;
-  }
-}
+/* Light only: the world was chosen from its use scene (planning on a phone in daylight). */
+:root { color-scheme: light; }
 
 @theme inline {
   --color-bg: var(--bg);
@@ -159,3 +141,8 @@ a { text-underline-offset: 4px; }
 @media (prefers-reduced-motion: reduce) {
   .bill::before, .sparkle, .status-in, .skeleton { animation: none; }
 }
+/* ?motion=off settles every animation (used for review captures) */
+:root[data-motion="off"] .bill::before,
+:root[data-motion="off"] .sparkle,
+:root[data-motion="off"] .status-in,
+:root[data-motion="off"] .skeleton { animation: none; }

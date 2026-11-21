@@ -9,9 +9,34 @@ const fmtTok = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(
 
 export function Console({ trace, stats, status, promptVersions, className = "" }: { trace: TraceItem[]; stats: RunStats | null; status: Status; promptVersions: Record<string, string> | null; className?: string }) {
   const listRef = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
+  const stick = useRef(true); // follow the newest step unless the reader scrolls up
+  // Pin to the newest step on mount (a mobile tab switch remounts this) and whenever content grows
+  // or reflows; instant, so an evaluator lands on the latest checks rather than mid-run.
   useEffect(() => {
-    listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
-  }, [trace.length]);
+    const list = listRef.current, inner = innerRef.current;
+    if (!list || !inner) return;
+    const pin = () => {
+      if (stick.current) list.scrollTop = list.scrollHeight;
+    };
+    pin();
+    const raf = requestAnimationFrame(pin);
+    const ro = new ResizeObserver(pin);
+    ro.observe(inner);
+    ro.observe(list);
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+    };
+  }, []);
+  useEffect(() => {
+    const list = listRef.current;
+    if (list && stick.current) list.scrollTop = list.scrollHeight;
+  }, [trace]);
+  const onScroll = () => {
+    const list = listRef.current;
+    if (list) stick.current = list.scrollHeight - list.scrollTop - list.clientHeight < 48;
+  };
 
   const statusLabel = status === "running" ? "working" : status === "idle" ? "ready" : status === "clarify" ? "waiting for you" : status === "error" ? "stopped" : "done";
   return (
@@ -26,7 +51,8 @@ export function Console({ trace, stats, status, promptVersions, className = "" }
         </span>
       </div>
 
-      <div ref={listRef} className="min-h-0 flex-1 space-y-3.5 overflow-y-auto px-5 py-4 text-[13px] leading-relaxed" aria-live="polite">
+      <div ref={listRef} onScroll={onScroll} className="console-scroll min-h-0 flex-1 overflow-y-auto px-5 py-4 text-[13px] leading-relaxed" aria-live="polite">
+        <div ref={innerRef} className="space-y-3.5">
         {trace.length === 0 && (
           <div className="max-w-[46ch] space-y-2 text-[14px] text-c-muted">
             <p>Each step the agent takes appears here as it happens: model calls, tool calls, cache hits, failed checks and&nbsp;retries.</p>
@@ -44,9 +70,7 @@ export function Console({ trace, stats, status, promptVersions, className = "" }
             );
           if (it.kind === "thinking")
             return (
-              <p key={i} className="pl-6 text-c-muted italic">
-                {clampThought(it.text)}
-              </p>
+              <Thought key={i} text={it.text} />
             );
           if (it.kind === "message")
             return (
@@ -77,6 +101,7 @@ export function Console({ trace, stats, status, promptVersions, className = "" }
             </div>
           );
         })}
+        </div>
       </div>
 
       <dl className="grid grid-cols-2 gap-x-4 gap-y-3 border-t border-c-line px-5 py-4 text-[13px]">
@@ -94,10 +119,24 @@ export function Console({ trace, stats, status, promptVersions, className = "" }
   );
 }
 
-/** Reasoning summaries can run long; keep the headline plus ~220 characters so the trace stays scannable. */
-function clampThought(text: string): string {
+/**
+ * A model reasoning summary. Long ones show the first ~220 characters and expand to the full text
+ * by click or keyboard, so nothing in the trace is hidden.
+ */
+function Thought({ text }: { text: string }) {
   const plain = text.replace(/\*\*/g, "").replace(/\s+/g, " ").trim();
-  return plain.length > 220 ? `${plain.slice(0, 220).replace(/\s+\S*$/, "")}…` : plain;
+  if (plain.length <= 220) return <p className="pl-6 text-c-muted italic">{plain}</p>;
+  const short = `${plain.slice(0, 220).replace(/\s+\S*$/, "")}…`;
+  return (
+    <details className="group pl-6 text-c-muted italic">
+      <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+        <span className="group-open:hidden">{short} </span>
+        <span className="text-c-info not-italic underline underline-offset-4 group-open:hidden">Show full thought</span>
+        <span className="hidden text-c-info not-italic underline underline-offset-4 group-open:inline">Show less</span>
+      </summary>
+      <p className="mt-1">{plain}</p>
+    </details>
+  );
 }
 
 function Stat({ label, value, sub, good }: { label: string; value: string; sub?: string; good?: boolean }) {

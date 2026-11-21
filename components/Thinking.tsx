@@ -65,12 +65,12 @@ export function ThinkingCard({ trace, startedAt, onShowTrace }: { trace: TraceIt
   const s = useThinkingState(trace, startedAt);
   return (
     <div className="space-y-6" aria-live="polite">
-      <div className="rounded-2xl border border-line bg-surface px-5 py-5">
+      <div className="rounded-xl border border-line bg-surface px-5 py-5">
         <div className="flex items-start gap-3">
           <Sparkle size={22} spinning className="mt-0.5 flex-none text-accent" />
           <div className="min-w-0 flex-1">
             <p key={s.phrase} className="status-in font-display text-lg">{s.phrase}…</p>
-            <p className="mt-0.5 text-sm text-muted tabular-nums">
+            <p className="mt-0.5 text-base text-muted tabular-nums">
               {s.headline ? <span className="text-ink/80">{s.headline} · </span> : null}
               {meta(s)}
             </p>
@@ -82,13 +82,13 @@ export function ThinkingCard({ trace, startedAt, onShowTrace }: { trace: TraceIt
             const active = !done && (i === 0 || STAGES[i - 1].done(s.names));
             return (
               <li key={st.label} className="flex min-w-0 flex-col gap-1.5" aria-current={active ? "step" : undefined}>
-                <span className={`h-1.5 rounded-full ${done ? "bg-accent" : active ? "bg-accent/40" : "bg-line"}`} />
-                <span className={`hidden truncate text-xs sm:block ${done || active ? "text-ink" : "text-muted"}`}>{st.label}</span>
+                <span className={`h-1.5 rounded-xl ${done ? "bg-accent" : active ? "bg-accent/40" : "bg-line"}`} />
+                <span className={`hidden truncate text-base sm:block ${done || active ? "text-ink" : "text-muted"}`}>{st.label}</span>
               </li>
             );
           })}
         </ol>
-        <button type="button" onClick={onShowTrace} className="mt-4 text-sm font-medium text-accent lg:hidden">
+        <button type="button" onClick={onShowTrace} className="mt-4 text-base font-medium text-accent lg:hidden">
           Watch the agent work
         </button>
       </div>
@@ -96,12 +96,12 @@ export function ThinkingCard({ trace, startedAt, onShowTrace }: { trace: TraceIt
       {/* Placeholder itinerary while the plan is being built */}
       <div className="space-y-3" aria-hidden="true">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="grid grid-cols-[56px_minmax(0,1fr)] gap-3 sm:grid-cols-[68px_minmax(0,1fr)] sm:gap-4" style={{ opacity: 1 - i * 0.25 }}>
-            <div className="skeleton mt-4 h-3.5 w-11 rounded" />
-            <div className="space-y-2.5 rounded-2xl border border-line bg-surface px-5 py-4">
-              <div className="skeleton h-4 w-1/2 rounded" />
-              <div className="skeleton h-3.5 w-5/6 rounded" />
-              <div className="skeleton h-3.5 w-2/3 rounded" />
+          <div key={i} className="grid grid-cols-[76px_minmax(0,1fr)] gap-3 sm:grid-cols-[104px_minmax(0,1fr)] sm:gap-5" style={{ opacity: 1 - i * 0.25 }}>
+            <div className="skeleton h-[76px] w-full rounded-xl sm:h-[88px]" />
+            <div className="space-y-2.5 rounded-xl border border-line bg-surface px-5 py-4">
+              <div className="skeleton h-4 w-1/2 rounded-xl" />
+              <div className="skeleton h-3.5 w-5/6 rounded-xl" />
+              <div className="skeleton h-3.5 w-2/3 rounded-xl" />
             </div>
           </div>
         ))}
@@ -119,7 +119,7 @@ export function ThinkingBanner({ trace, startedAt, change }: { trace: TraceItem[
         <Sparkle size={20} spinning className="flex-none text-accent" />
         <div className="min-w-0 flex-1">
           <p key={s.phrase} className="status-in truncate font-semibold">{s.phrase}…</p>
-          <p className="truncate text-sm text-muted tabular-nums">
+          <p className="truncate text-base text-muted tabular-nums">
             Updating your plan{change ? `: “${change}”` : ""} · {meta(s)}
           </p>
         </div>

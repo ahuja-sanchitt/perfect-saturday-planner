@@ -16,7 +16,7 @@ const SOURCE_META: Record<Source, { label: string; title: string; cls: string }>
 export function SourceBadge({ source }: { source: Source }) {
   const m = SOURCE_META[source];
   return (
-    <span title={m.title} className={`inline-flex h-6 items-center rounded-full border px-2.5 text-xs font-medium ${m.cls}`}>
+    <span title={m.title} className={`inline-flex h-6 items-center rounded-xl border px-2.5 text-base font-medium ${m.cls}`}>
       {m.label}
     </span>
   );
@@ -33,34 +33,34 @@ export function PlanView({ plan }: { plan: Plan }) {
   return (
     <div className="space-y-6">
       {/* The bill: the plan title painted on a saffron field (paints in when a plan lands) */}
-      <header className="bill rounded-2xl px-5 py-5 text-saffron-ink sm:px-7 sm:py-6">
+      <header className="bill rounded-xl px-5 py-5 text-saffron-ink sm:px-7 sm:py-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-8">
           <div className="min-w-0 space-y-2">
             <h2 className="font-display text-[34px] leading-[1.05] sm:text-[44px]">{plan.title}</h2>
             <p className="max-w-[62ch] text-base text-saffron-muted">{plan.summary}</p>
           </div>
           <dl className="grid flex-none grid-cols-3 gap-x-5 gap-y-0.5 text-left tabular-nums lg:text-right">
-            <dt className="text-sm text-saffron-muted">Spend</dt>
-            <dt className="text-sm text-saffron-muted">Time</dt>
-            <dt className="text-sm text-saffron-muted">Air</dt>
+            <dt className="text-base text-saffron-muted">Spend</dt>
+            <dt className="text-base text-saffron-muted">Time</dt>
+            <dt className="text-base text-saffron-muted">Air</dt>
             <dd className={`text-lg font-bold ${overBudget ? "underline decoration-2 underline-offset-4" : ""}`}>
               {inr(plan.totals.cost)}
-              {plan.totals.budget ? <span className="block text-sm font-normal text-saffron-muted">of {inr(plan.totals.budget)}</span> : null}
+              {plan.totals.budget ? <span className="block text-base font-normal text-saffron-muted">of {inr(plan.totals.budget)}</span> : null}
             </dd>
             <dd className={`text-lg font-bold ${overTime ? "underline decoration-2 underline-offset-4" : ""}`}>
               {dur(plan.totals.minutes)}
-              {plan.totals.availableMinutes ? <span className="block text-sm font-normal text-saffron-muted">of {dur(plan.totals.availableMinutes)}</span> : null}
+              {plan.totals.availableMinutes ? <span className="block text-base font-normal text-saffron-muted">of {dur(plan.totals.availableMinutes)}</span> : null}
             </dd>
             <dd className="text-lg font-bold">
               {plan.weather?.aqi != null ? `AQI ${plan.weather.aqi}` : "n/a"}
-              {plan.weather?.tempMax != null ? <span className="block text-sm font-normal text-saffron-muted">{Math.round(plan.weather.tempMax)}°C</span> : null}
+              {plan.weather?.tempMax != null ? <span className="block text-base font-normal text-saffron-muted">{Math.round(plan.weather.tempMax)}°C</span> : null}
             </dd>
           </dl>
         </div>
       </header>
 
       {plan.mode === "fallback" && (
-        <p className="rounded-xl bg-subtle px-4 py-3 text-[15px] text-muted">
+        <p className="rounded-xl bg-subtle px-4 py-3 text-base text-muted">
           The AI planner wasn&apos;t available, so a rule-based planner built this from the same real places and checks. It&apos;s less personal.
         </p>
       )}
@@ -69,18 +69,18 @@ export function PlanView({ plan }: { plan: Plan }) {
       <ol>
         {plan.stops.map((s, i) => (
           <li key={`${s.placeId}-${i}`}>
-            <div className="grid grid-cols-[76px_minmax(0,1fr)] gap-3 sm:grid-cols-[104px_minmax(0,1fr)_auto] sm:gap-5">
+            <div className="grid grid-cols-[76px_minmax(0,1fr)] gap-3 sm:grid-cols-[104px_minmax(0,1fr)_88px] sm:gap-5">
               <div className="flex h-[76px] flex-col items-center justify-center rounded-xl bg-night text-marquee sm:h-[88px]">
                 <span className="font-display text-[26px] leading-none tabular-nums sm:text-[30px]">{s.start}</span>
-                <span className="mt-1 text-[13px] text-night-ink/80 tabular-nums">to {s.end}</span>
+                <span className="mt-1 text-base text-night-ink/80 tabular-nums">to {s.end}</span>
               </div>
-              <article className="group flex flex-col gap-2 rounded-2xl border border-line bg-surface px-5 py-4 transition-colors focus-within:border-accent hover:border-line-strong">
+              <article className="group flex flex-col gap-2 rounded-xl border border-line bg-surface px-5 py-4 transition-colors focus-within:border-accent hover:border-line-strong">
                 <div className="flex items-baseline justify-between gap-3">
                   <h3 className="font-display text-[22px] leading-tight">
                     <a href={mapUrl(`${s.name} ${s.area}`, s.lat, s.lng)} target="_blank" rel="noreferrer" className="hover:underline">
                       {s.name}
                     </a>
-                    <span className="ml-2 font-sans text-sm text-muted">{s.area}</span>
+                    <span className="block font-sans text-base whitespace-nowrap text-muted sm:ml-2 sm:inline">{s.area}</span>
                   </h3>
                   <span className="flex-none text-base font-bold tabular-nums sm:hidden">{s.cost ? inr(s.cost) : "Free"}</span>
                 </div>
@@ -95,7 +95,7 @@ export function PlanView({ plan }: { plan: Plan }) {
                     {s.tradeoff}
                   </p>
                 )}
-                <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-muted">
+                <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-base text-muted">
                   <SourceBadge source={s.source} />
                   {s.backup && <span>Backup: {s.backup.name}</span>}
                 </div>
@@ -105,7 +105,7 @@ export function PlanView({ plan }: { plan: Plan }) {
             {i < plan.stops.length - 1 && (
               <div className="grid grid-cols-[76px_minmax(0,1fr)] gap-3 sm:grid-cols-[104px_minmax(0,1fr)] sm:gap-5" aria-hidden={!s.travelToNext}>
                 <span className="mx-auto h-full min-h-7 w-0 border-l-2 border-dashed border-muted/60" />
-                <span className="self-center py-2 text-sm text-muted tabular-nums">
+                <span className="self-center py-2 text-base text-muted tabular-nums">
                   {s.travelToNext ? `${s.travelToNext.mode === "walk" ? "Walk" : "Cab"} ${s.travelToNext.minutes} min${s.travelToNext.fare ? `, about ${inr(s.travelToNext.fare)}` : ""}` : ""}
                 </span>
               </div>
@@ -115,13 +115,13 @@ export function PlanView({ plan }: { plan: Plan }) {
       </ol>
 
       {plan.stops.some((s) => s.source === "mock") && (
-        <p className="rounded-xl bg-warn/10 px-4 py-3 text-[15px] text-warn">
+        <p className="rounded-xl bg-warn/10 px-4 py-3 text-base text-warn">
           Stops marked <strong>Sample data</strong> are fictional venues, added to show coverage while more real data sources are connected. Everything else is a real place.
         </p>
       )}
 
       {plan.warnings.length > 0 && (
-        <details className="rounded-xl border border-line bg-surface px-4 py-3 text-[15px]">
+        <details className="rounded-xl border border-line bg-surface px-4 py-3 text-base">
           <summary className="cursor-pointer font-bold text-warn">Things to know ({plan.warnings.length})</summary>
           <ul className="mt-2 list-disc space-y-1 pl-5 text-muted">
             {plan.warnings.map((w, i) => (
@@ -166,7 +166,7 @@ export function RefineBox({ onSubmit, disabled, runId }: { onSubmit: (text: stri
   return (
     <div className="space-y-3">
       <form
-        className="flex items-center gap-2 rounded-2xl border border-line-strong bg-surface py-1.5 pl-4 pr-1.5 focus-within:border-accent"
+        className="flex items-center gap-2 rounded-xl border border-line-strong bg-surface py-1.5 pl-4 pr-1.5 focus-within:border-accent"
         onSubmit={(e) => {
           e.preventDefault();
           submit(text);
@@ -184,25 +184,25 @@ export function RefineBox({ onSubmit, disabled, runId }: { onSubmit: (text: stri
             setText(e.target.value);
             if (hint) setHint(false);
           }}
-          placeholder="Change anything: cheaper, start at 2pm, I'm in Gurugram now…"
+          placeholder="What should change?"
           className="h-11 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted"
           maxLength={400}
         />
-        <button type="submit" disabled={disabled} className="flex h-11 items-center gap-2 rounded-xl bg-accent px-4 text-[15px] font-bold text-accent-ink transition-transform active:scale-[0.98] disabled:opacity-50">
+        <button type="submit" disabled={disabled} className="flex h-11 items-center gap-2 rounded-xl bg-accent px-4 text-base font-bold text-accent-ink transition-transform active:scale-[0.98] disabled:opacity-50">
           <span className="hidden sm:inline">Update plan</span>
           <ArrowRightIcon />
           <span className="sr-only sm:hidden">Update plan</span>
         </button>
       </form>
       {hint && (
-        <p id="refine-hint" role="status" className="text-sm text-warn">
+        <p id="refine-hint" role="status" className="text-base text-warn">
           Type what to change first, or tap one of the quick changes below.
         </p>
       )}
       <div className="flex items-center gap-2">
         <div className="-my-1 flex min-w-0 flex-1 gap-2 overflow-x-auto py-1 sm:flex-wrap" aria-label="Quick changes">
           {TWEAKS.map((t) => (
-            <button key={t} type="button" disabled={disabled} onClick={() => submit(t)} className="h-9 flex-none rounded-full border border-line-strong bg-surface px-3.5 text-sm whitespace-nowrap hover:border-accent disabled:opacity-50">
+            <button key={t} type="button" disabled={disabled} onClick={() => submit(t)} className="h-9 flex-none rounded-xl border border-line-strong bg-surface px-3.5 text-base whitespace-nowrap hover:border-accent disabled:opacity-50">
               {t}
             </button>
           ))}
@@ -224,7 +224,7 @@ function DataLegend({ plan }: { plan: Plan }) {
   const counts = plan.stops.reduce<Record<string, number>>((m, s) => ((m[s.source] = (m[s.source] ?? 0) + 1), m), {});
   const real = plan.stops.length - (counts.mock ?? 0);
   return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted">
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-base text-muted">
       <span>
         {real} real place{real === 1 ? "" : "s"}
         {counts.mock ? ` and ${counts.mock} sample` : ""}. Weather and AQI live from Open-Meteo, travel times from OSRM.
