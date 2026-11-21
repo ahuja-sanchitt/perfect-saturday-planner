@@ -2,6 +2,23 @@
 import { useState } from "react";
 import type { Plan } from "@/lib/types";
 
+// How each data source is labelled for the user. "mock" = fictional sample venue.
+const SOURCE_META: Record<Plan["stops"][number]["source"], { label: string; title: string; cls: string }> = {
+  curated: { label: "Real · curated guide", title: "Real place. Details (hours, prices, crowd levels) are hand-curated estimates.", cls: "border-good/40 text-good" },
+  osm: { label: "Real · OpenStreetMap", title: "Real place from OpenStreetMap. Prices and crowd levels are estimates.", cls: "border-good/40 text-good" },
+  swiggy: { label: "Real · Swiggy Dineout", title: "Real restaurant from a Swiggy Dineout snapshot.", cls: "border-good/40 text-good" },
+  mock: { label: "Sample data", title: "Fictional sample venue used to demo coverage. Not a real business.", cls: "border-warn/50 bg-warn/10 text-warn" },
+};
+
+export function SourceBadge({ source }: { source: Plan["stops"][number]["source"] }) {
+  const m = SOURCE_META[source];
+  return (
+    <span title={m.title} className={`inline-flex h-5 items-center rounded-full border px-2 text-[11px] font-medium ${m.cls}`}>
+      {m.label}
+    </span>
+  );
+}
+
 const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 const dur = (m: number) => `${Math.floor(m / 60)}h${m % 60 ? ` ${m % 60}m` : ""}`;
 const mapUrl = (name: string, lat: number, lng: number) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}%20%40${lat},${lng}`;
@@ -48,9 +65,9 @@ export function PlanView({ plan }: { plan: Plan }) {
                 <p className="text-[13.5px] text-ink/85">{s.activity}</p>
                 <p className="text-[12.5px] font-medium text-good">Why you: {s.why}</p>
                 {s.tradeoff && <p className="text-[12.5px] font-medium text-warn">Trade-off: {s.tradeoff}</p>}
-                <div className="flex flex-wrap gap-x-3 text-xs text-muted">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
+                  <SourceBadge source={s.source} />
                   {s.backup && <span>Backup: {s.backup.name}</span>}
-                  <span>Source: {s.source === "swiggy" ? "Swiggy Dineout" : s.source === "osm" ? "OpenStreetMap" : "curated guide"}</span>
                 </div>
               </article>
               <div className="hidden pt-3.5 text-right text-sm font-semibold sm:block">{s.cost ? inr(s.cost) : "Free"}</div>
@@ -67,6 +84,12 @@ export function PlanView({ plan }: { plan: Plan }) {
           </li>
         ))}
       </ol>
+
+      {plan.stops.some((s) => s.source === "mock") && (
+        <p className="rounded-xl border border-warn/40 bg-warn/10 px-4 py-3 text-[13px] text-warn">
+          Stops marked <strong>Sample data</strong> are fictional venues, added to show coverage while more real data sources are connected. Everything else is a real place.
+        </p>
+      )}
 
       {plan.warnings.length > 0 && (
         <details className="rounded-xl border border-line bg-surface px-4 py-3 text-sm">
@@ -90,6 +113,7 @@ export function PlanView({ plan }: { plan: Plan }) {
         </span>
         {!overBudget && !overTime && !plan.warnings.length && <span className="font-semibold text-good">All constraints met</span>}
       </div>
+      <DataLegend plan={plan} />
     </div>
   );
 }
@@ -152,6 +176,24 @@ export function RefineBox({ onSubmit, disabled, runId }: { onSubmit: (text: stri
           </button>
         </span>
       </div>
+    </div>
+  );
+}
+
+function DataLegend({ plan }: { plan: Plan }) {
+  const counts = plan.stops.reduce<Record<string, number>>((m, s) => ((m[s.source] = (m[s.source] ?? 0) + 1), m), {});
+  const real = plan.stops.length - (counts.mock ?? 0);
+  return (
+    <div className="flex flex-wrap items-center gap-2 border-t border-line pt-3 text-xs text-muted">
+      <span>
+        Data: {real} real place{real === 1 ? "" : "s"}
+        {counts.mock ? `, ${counts.mock} sample` : ""} · weather & AQI live from Open-Meteo · travel times via OSRM
+      </span>
+      <span className="flex flex-wrap gap-1.5">
+        {(Object.keys(counts) as Plan["stops"][number]["source"][]).map((k) => (
+          <SourceBadge key={k} source={k} />
+        ))}
+      </span>
     </div>
   );
 }

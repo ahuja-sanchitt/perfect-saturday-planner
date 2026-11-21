@@ -45,7 +45,8 @@ POST /api/plan (Server-Sent Events)
 
 | Source | Used for | How |
 |---|---|---|
-| **Curated NCR guide** (~50 places) | Crowd levels by time of day, indoor/outdoor, realistic spend, local tips | Hand-written in `lib/data/curated.ts`; values flagged `verified: false` until reviewed |
+| **Curated NCR guide** (87 real places: 57 things to do, 30 restaurants) | Crowd levels by time of day, indoor/outdoor, realistic spend, local tips | Hand-written in `lib/data/curated.ts`; values flagged `verified: false` until reviewed |
+| **Sample venues** (32, fictional) | Fill gaps (live music, cafés, workshops in Gurugram/Noida) | `lib/data/mock.ts`, `source: "mock"`. Every stop carries a source badge (Real · curated / OpenStreetMap / Swiggy, or **Sample data**), and plans with sample stops show a notice. They rank below real places |
 | **OpenStreetMap** (1,700+ places) | Parks, museums, galleries, heritage, music venues, veg restaurants | Build-time snapshot via Overpass (`scripts/ingest-osm.mjs`). The public Overpass API took 10–30 s per query when tested, too slow for a live request. Set `OSM_LIVE=1` to top up live |
 | **Open-Meteo** | Saturday forecast + **air quality (AQI)**, which shapes Delhi plans | Live, keyless, cached 30 min |
 | **OSRM** | Real road travel times (scaled ×1.6 for Delhi traffic) | Live, keyless, cached 6 h, haversine fallback |
@@ -85,6 +86,9 @@ How I read it:
 - v3 stays active because it carries the refinement fix ("cheaper" must actually cost less). This eval set doesn't cover multi-turn refinement yet, which is a known gap.
 
 ---
+
+### Variety
+A recency penalty that decays over about 2 hours, plus light jitter among near-equal candidates, stops the same few places winning every plan. Jitter is disabled in evals for repeatability. Identical requests within 30 minutes are still served from the response cache on purpose.
 
 ## Failure handling
 

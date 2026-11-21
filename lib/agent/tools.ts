@@ -1,6 +1,8 @@
 // Agent tools: JSON-schema definitions (strict, byte-stable for prompt caching) + handlers.
 import { z } from "zod";
 import { CURATED_PLACES } from "@/lib/data/curated";
+import { MOCK_PLACES } from "@/lib/data/mock";
+import { jitter, recencyPenalty, recordPicks } from "./variety";
 import { LOCALITIES, inNcrBounds } from "@/lib/data/localities";
 import { DINEOUT_SNAPSHOT, EVENTS_SNAPSHOT } from "@/lib/data/snapshot";
 import { haversineKm, slotOf, toMinutes } from "@/lib/geo";
@@ -99,7 +101,7 @@ export const TOOL_DEFINITIONS = [
   },
   {
     name: "search_activities",
-    description: "Find things to do near a point: parks, walks, heritage, museums, galleries, music venues. Combines curated local knowledge (crowd levels, tips) with live OpenStreetMap data.",
+    description: "Find things to do near a point: parks, walks, heritage, museums, galleries, music venues. Combines curated local knowledge (crowd levels, tips), OpenStreetMap data and a few sample venues. Each result has a source: curated/osm/swiggy are real places; mock is a fictional sample venue — prefer real places when they fit about as well.",
     parameters: obj({ lat: num, lng: num, interests: strArr, preferIndoor: { type: "boolean" }, maxKm: { type: "number", description: "Search radius in km (5–15 typical)" } }),
   },
   {
@@ -109,7 +111,7 @@ export const TOOL_DEFINITIONS = [
   },
   {
     name: "search_food",
-    description: "Find restaurants/cafés near a point that satisfy the user's diet, filtered by max spend per person. Sources: Swiggy Dineout snapshot, curated list, OpenStreetMap.",
+    description: "Find restaurants/cafés near a point that satisfy the user's diet, filtered by max spend per person. Sources: Swiggy Dineout snapshot, curated list, OpenStreetMap, sample venues (source: mock = fictional; prefer real places when they fit about as well).",
     parameters: obj({ lat: num, lng: num, maxSpendPerPerson: num, cuisineHint: { type: ["string", "null"] }, maxKm: num }),
   },
   {
@@ -140,6 +142,9 @@ function compact(p: Place, ctx: ToolContext) {
     source: p.source,
   };
 }
+
+// Trust ordering: real places with rich local data first, fictional samples below them, raw OSM last.
+const SOURCE_BOOST: Record<Place["source"], number> = { swiggy: 3, curated: 3, mock: 1.5, osm: -1 };
 
 function register(ctx: ToolContext, places: Place[]) {
   for (const p of places) ctx.places.set(p.id, p);
@@ -218,7 +223,7 @@ async function weather({ lat, lng }: z.infer<typeof ARGS.get_weather>, ctx: Tool
 async function searchActivities(a: z.infer<typeof ARGS.search_activities>, ctx: ToolContext): Promise<ToolResult> {
   const point = { lat: a.lat, lng: a.lng };
   const maxKm = Math.min(Math.max(a.maxKm, 3), 20);
-  const curated = CURATED_PLACES.filter((p) => p.kind === "activity" && haversineKm(point, p) <= maxKm);
+  const curated = [...CURATED_PLACES, ...MOCK_PLACES].filter((p) => p.kind === "activity" && haversineKm(point, p) <= maxKm);
 
   // Live OSM top-up for the user's interests.
   const cats = [...new Set(a.interests.flatMap((i) => INTEREST_TO_OSM[i.toLowerCase()] ?? []))].slice(0, 2);
@@ -238,7 +243,7 @@ async function searchActivities(a: z.infer<typeof ARGS.search_activities>, ctx: 
   const scored = [...curated, ...osm]
     .map((p) => {
       // Curated places carry verified-ish hours, crowd and price data, so they outrank raw OSM.
-      let s = interestScore(p, a.interests) * 2 + (p.source === "curated" ? 3 : -1) - haversineKm(point, p) / 4;
+      let s = interestScore(p, a.interests) * 2 + SOURCE_BOOST[p.source] - haversineKm(point, p) / 4 - recencyPenalty(p.id) + jitter();
       if (a.preferIndoor && p.indoor) s += 2;
       if (ctx.prefs.avoidCrowds && p.crowd && p.crowd.afternoon === "high" && p.crowd.morning !== "low") s -= 2;
       if (ctx.prefs.energy === "low" && p.tags.includes("low-effort")) s += 1;
@@ -248,9 +253,10 @@ async function searchActivities(a: z.infer<typeof ARGS.search_activities>, ctx: 
     .slice(0, 12)
     .map((x) => x.p);
   register(ctx, scored);
+  if (scored.some((p) => p.source === "mock")) ctx.dataSources.add("Sample venues (mock)");
   return {
     output: { count: scored.length, places: scored.map((p) => compact(p, ctx)), ...(osmNote ? { note: osmNote } : {}) },
-    summary: `${scored.length} found (${scored.filter((p) => p.source === "curated").length} curated, ${scored.filter((p) => p.source === "osm").length} OSM live)${osmNote ? " · OSM down, fallback" : ""}`,
+    summary: `${scored.length} found (${scored.filter((p) => p.source === "curated").length} curated, ${scored.filter((p) => p.source === "osm").length} OSM, ${scored.filter((p) => p.source === "mock").length} sample)${osmNote ? " · OSM down, fallback" : ""}`,
     cacheHit: anyHit,
   };
 }
@@ -259,7 +265,7 @@ async function searchFood(a: z.infer<typeof ARGS.search_food>, ctx: ToolContext)
   const point = { lat: a.lat, lng: a.lng };
   const maxKm = Math.min(Math.max(a.maxKm, 2), 15);
   const diet = ctx.prefs.diet;
-  const pool: Place[] = [...DINEOUT_SNAPSHOT.places, ...CURATED_PLACES.filter((p) => p.kind === "food")];
+  const pool: Place[] = [...DINEOUT_SNAPSHOT.places, ...CURATED_PLACES.filter((p) => p.kind === "food"), ...MOCK_PLACES.filter((p) => p.kind === "food")];
   let osmNote = "";
   let hit = false;
   if (diet !== "any") {
@@ -278,7 +284,7 @@ async function searchFood(a: z.infer<typeof ARGS.search_food>, ctx: ToolContext)
   const affordable = near.filter((p) => p.costPerPerson <= a.maxSpendPerPerson);
   const hint = a.cuisineHint?.toLowerCase();
   const rank = (p: Place) =>
-    (p.source === "swiggy" ? 2 : p.source === "curated" ? 1.5 : 0) +
+    SOURCE_BOOST[p.source] - recencyPenalty(p.id) + jitter() +
     (p.diet?.vegOnly && diet !== "any" ? 1 : 0) +
     (hint && (p.category.includes(hint) || p.tags.some((t) => t.includes(hint))) ? 2 : 0) +
     (ctx.prefs.avoidCrowds && p.crowd?.afternoon === "high" ? -1.5 : 0) -
@@ -287,6 +293,7 @@ async function searchFood(a: z.infer<typeof ARGS.search_food>, ctx: ToolContext)
   register(ctx, chosen);
   if (DINEOUT_SNAPSHOT.places.length) ctx.dataSources.add(`Swiggy Dineout snapshot (${DINEOUT_SNAPSHOT.takenAt?.slice(0, 10)})`);
   ctx.dataSources.add("Curated NCR guide");
+  if (chosen.some((p) => p.source === "mock")) ctx.dataSources.add("Sample venues (mock)");
   const note = !affordable.length && near.length ? `Nothing within ₹${a.maxSpendPerPerson}/person; showing cheapest nearby options instead.` : osmNote || undefined;
   return {
     output: { count: chosen.length, places: chosen.map((p) => compact(p, ctx)), ...(note ? { note } : {}), ...(chosen.length === 0 ? { suggestion: "Increase maxKm or maxSpendPerPerson." } : {}) },
@@ -367,6 +374,7 @@ async function finalizePlan(a: FinalPlanInput, ctx: ToolContext): Promise<ToolRe
   }
   ctx.finalPlan = a;
   ctx.finalCheck = check;
+  recordPicks(a.stops.map((s) => s.placeId));
   return {
     output: { accepted: true, note: blocking.length ? "Accepted with unresolved issues flagged to the user." : "Accepted." },
     summary: blocking.length ? `accepted with ${blocking.length} flagged issue(s)` : `accepted · ${a.stops.length} stops · ₹${check.totals.cost} · ${check.totals.minutes} min`,

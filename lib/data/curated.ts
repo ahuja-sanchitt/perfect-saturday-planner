@@ -285,4 +285,171 @@ export const CURATED_PLACES: Place[] = [
     costForTwo: 1800, vegOnly: false, vegFriendly: true, hours: hrs("09:00", "23:30"), crowd: ["low", "medium", "high"],
     tags: ["multi-cuisine", "brunch"], note: "Large menu, good for groups.",
   }),
+
+  // ================= Expansion (v2 of the guide) =================
+  // ---------------- More heritage & landmarks ----------------
+  activity("red-fort", "Red Fort", "heritage", "Old Delhi", "Delhi", 28.6562, 77.241, {
+    indoor: false, cost: 50, dur: 90, hours: hrs("09:30", "16:30", ["Mon"]), crowd: ["high", "high", "high"],
+    tags: ["heritage", "history", "photography"], note: "Big, iconic and always busy; the museums inside are quieter than the lawns.",
+  }),
+  activity("jama-masjid", "Jama Masjid", "heritage", "Old Delhi", "Delhi", 28.6507, 77.2334, {
+    indoor: false, cost: 0, dur: 45, hours: hrs("07:00", "18:30"), crowd: ["medium", "high", "high"],
+    tags: ["heritage", "culture", "photography", "free"], note: "Closed to visitors during prayer times; dress modestly. Camera fee applies.",
+  }),
+  activity("safdarjung-tomb", "Safdarjung's Tomb", "heritage", "Jor Bagh", "Delhi", 28.5894, 77.2106, {
+    indoor: false, cost: 25, dur: 45, hours: hrs("07:00", "18:00"), crowd: ["low", "low", "medium"],
+    tags: ["heritage", "history", "photography", "calm", "walks"], note: "The last great Mughal garden tomb; rarely crowded.",
+  }),
+  activity("lotus-temple", "Lotus Temple", "landmark", "Kalkaji", "Delhi", 28.5535, 77.2588, {
+    indoor: false, cost: 0, dur: 45, hours: hrs("09:00", "17:30", ["Mon"]), crowd: ["medium", "high", "medium"],
+    tags: ["landmark", "calm", "free", "photography"], note: "Silent prayer hall; weekend queues move fast but are long by noon.",
+  }),
+  activity("akshardham", "Swaminarayan Akshardham", "landmark", "Pandav Nagar", "Delhi", 28.6127, 77.2773, {
+    indoor: false, cost: 0, dur: 120, hours: hrs("10:00", "18:30", ["Mon"]), crowd: ["high", "high", "high"],
+    tags: ["landmark", "culture", "architecture"], note: "Free entry, but phones are not allowed inside; heavy weekend crowds.",
+  }),
+  activity("chhatarpur-temple", "Chhatarpur Mandir", "landmark", "Chhatarpur", "Delhi", 28.5022, 77.1777, {
+    indoor: false, cost: 0, dur: 45, hours: hrs("06:00", "22:00"), crowd: ["low", "medium", "medium"],
+    tags: ["culture", "architecture", "free"], note: "Sprawling marble temple complex; calm on weekday-style mornings.",
+  }),
+  activity("waste-to-wonder", "Waste to Wonder Park", "park", "Sarai Kale Khan", "Delhi", 28.5856, 77.256, {
+    indoor: false, cost: 50, dur: 60, hours: hrs("11:00", "23:00"), crowd: ["low", "medium", "high"],
+    tags: ["walks", "photography", "art"], note: "Wonders-of-the-world replicas made from scrap; lit up after dark.",
+  }),
+  activity("delhi-zoo", "National Zoological Park", "park", "Mathura Road", "Delhi", 28.605, 77.246, {
+    indoor: false, cost: 80, dur: 120, hours: hrs("09:00", "16:30", ["Fri"]), crowd: ["medium", "high", "medium"],
+    tags: ["nature", "walks", "family"], note: "Lots of walking; go early before families arrive.",
+  }),
+
+  // ---------------- More museums, theatre, culture ----------------
+  activity("gandhi-smriti", "Gandhi Smriti", "museum", "Tees January Marg", "Delhi", 28.6015, 77.214, {
+    indoor: true, cost: 0, dur: 60, hours: hrs("10:00", "17:00", ["Mon"]), crowd: ["low", "low", "low"],
+    tags: ["history", "museum", "free", "calm", "indoor"], note: "Where Gandhi spent his last days; quiet, moving and free.",
+  }),
+  activity("rail-museum", "National Rail Museum", "museum", "Chanakyapuri", "Delhi", 28.5852, 77.1797, {
+    indoor: false, cost: 50, dur: 90, hours: hrs("10:00", "17:00", ["Mon"]), crowd: ["medium", "high", "medium"],
+    tags: ["history", "museum", "family", "photography"], note: "Vintage locomotives outdoors plus an indoor gallery.",
+  }),
+  activity("nehru-planetarium", "Nehru Planetarium", "museum", "Teen Murti", "Delhi", 28.6026, 77.1995, {
+    indoor: true, cost: 100, dur: 75, hours: hrs("10:00", "17:00", ["Mon"]), crowd: ["low", "medium", "low"],
+    tags: ["science", "museum", "indoor", "family"], note: "Sky-theatre shows run at fixed times; check the schedule.",
+  }),
+  activity("sanskriti-museums", "Sanskriti Museums", "museum", "Anandgram", "Delhi", 28.486, 77.159, {
+    indoor: true, cost: 0, dur: 60, hours: hrs("10:00", "17:00", ["Mon"]), crowd: ["low", "low", "low"],
+    tags: ["art", "crafts", "museum", "free", "calm", "indoor", "offbeat"], note: "Three small museums of everyday art and terracotta in a leafy campus.",
+  }),
+  activity("bikaner-house", "Bikaner House", "gallery", "Pandara Road", "Delhi", 28.6097, 77.2297, {
+    indoor: true, cost: 0, dur: 45, hours: hrs("10:00", "19:00"), crowd: ["low", "low", "medium"],
+    tags: ["art", "free", "indoor", "calm", "events"], note: "Heritage building with rotating exhibitions; café on the lawn.",
+  }),
+  activity("kamani-auditorium", "Kamani Auditorium", "theatre", "Mandi House", "Delhi", 28.626, 77.234, {
+    indoor: true, cost: 500, dur: 150, hours: hrs("18:00", "21:30"), crowd: ["low", "low", "medium"],
+    tags: ["theatre", "music", "culture", "indoor", "evening"], note: "Plays, dance and concerts most weekends; tickets vary by show.",
+  }),
+  activity("shri-ram-centre", "Shri Ram Centre for Performing Arts", "theatre", "Mandi House", "Delhi", 28.625, 77.233, {
+    indoor: true, cost: 300, dur: 120, hours: hrs("18:00", "21:30"), crowd: ["low", "low", "medium"],
+    tags: ["theatre", "culture", "indoor", "evening"], note: "Hindi and English theatre; affordable tickets.",
+  }),
+  activity("siri-fort-auditorium", "Siri Fort Auditorium", "theatre", "Siri Fort", "Delhi", 28.55, 77.216, {
+    indoor: true, cost: 500, dur: 150, hours: hrs("17:00", "22:00"), crowd: ["low", "low", "medium"],
+    tags: ["music", "theatre", "culture", "indoor", "evening", "events"], note: "Concerts and festivals; check listings for the weekend.",
+  }),
+  activity("epicentre-ggn", "Epicentre", "theatre", "Sector 44", "Gurugram", 28.451, 77.072, {
+    indoor: true, cost: 500, dur: 120, hours: hrs("17:00", "22:00"), crowd: ["low", "low", "medium"],
+    tags: ["theatre", "music", "comedy", "culture", "indoor", "evening", "events"], note: "Gurugram's main stage for plays, stand-up and gigs.",
+  }),
+
+  // ---------------- Live music & nightlife ----------------
+  activity("depot48", "Depot48", "music", "Green Park", "Delhi", 28.559, 77.206, {
+    indoor: true, cost: 900, dur: 120, hours: hrs("12:00", "23:59"), crowd: ["low", "medium", "high"],
+    tags: ["music", "live-music", "food", "indoor"], note: "Live bands on a small stage most evenings; food is decent too.",
+  }),
+
+  // ---------------- Shopping, books, markets ----------------
+  activity("khan-market-walk", "Khan Market", "market", "Khan Market", "Delhi", 28.6003, 77.227, {
+    indoor: false, cost: 0, dur: 60, hours: hrs("10:30", "21:00", ["Sun"]), crowd: ["low", "medium", "high"],
+    tags: ["shopping", "books", "cafes"], note: "Compact upscale market with bookshops and cafés upstairs.",
+  }),
+  activity("bahrisons", "Bahrisons Booksellers", "bookshop", "Khan Market", "Delhi", 28.6004, 77.2268, {
+    indoor: true, cost: 0, dur: 40, hours: hrs("10:30", "20:00", ["Sun"]), crowd: ["low", "low", "medium"],
+    tags: ["books", "indoor", "calm", "free"], note: "Delhi's classic independent bookshop; staff recommendations are good.",
+  }),
+  activity("midland-aurobindo", "Midland Book Shop", "bookshop", "Aurobindo Market", "Delhi", 28.5466, 77.2005, {
+    indoor: true, cost: 0, dur: 40, hours: hrs("10:00", "20:00"), crowd: ["low", "low", "low"],
+    tags: ["books", "indoor", "calm", "free"], note: "Floor-to-ceiling secondhand and new books; easy to lose an hour.",
+  }),
+  activity("sarojini-market", "Sarojini Nagar Market", "market", "Sarojini Nagar", "Delhi", 28.577, 77.1966, {
+    indoor: false, cost: 0, dur: 75, hours: hrs("10:30", "21:00", ["Mon"]), crowd: ["high", "high", "high"],
+    tags: ["shopping", "budget", "street-food"], note: "Bargain fashion heaven, but shoulder-to-shoulder on Saturdays.",
+  }),
+  activity("janpath-market", "Janpath Market", "market", "Connaught Place", "Delhi", 28.626, 77.219, {
+    indoor: false, cost: 0, dur: 45, hours: hrs("10:30", "20:30"), crowd: ["medium", "high", "high"],
+    tags: ["shopping", "crafts", "budget"], note: "Tibetan and handicraft stalls; bargain hard.",
+  }),
+  activity("ambience-mall-ggn", "Ambience Mall Gurugram", "mall", "NH-48", "Gurugram", 28.505, 77.096, {
+    indoor: true, cost: 0, dur: 75, hours: hrs("10:00", "22:00"), crowd: ["medium", "high", "high"],
+    tags: ["shopping", "indoor", "food"], note: "Huge, air-conditioned and busy on weekends; a fallback for bad-air days.",
+  }),
+  activity("mall-of-india-noida", "DLF Mall of India", "mall", "Noida Sector 18", "Noida", 28.5672, 77.3214, {
+    indoor: true, cost: 0, dur: 75, hours: hrs("10:00", "22:00"), crowd: ["medium", "high", "high"],
+    tags: ["shopping", "indoor", "food", "family"], note: "One of India's largest malls; crowded on weekend afternoons.",
+  }),
+  activity("worlds-of-wonder", "Worlds of Wonder", "amusement-park", "Noida Sector 38A", "Noida", 28.564, 77.326, {
+    indoor: false, cost: 1200, dur: 180, hours: hrs("11:00", "19:00"), crowd: ["medium", "high", "high"],
+    tags: ["adventure", "family", "high-energy"], note: "Rides and a water park; for high-energy days only.",
+  }),
+
+  // ---------------- More food ----------------
+  food("rajdhani-cp", "Rajdhani Thali", "gujarati-rajasthani", "Connaught Place", "Delhi", 28.633, 77.22, {
+    costForTwo: 1600, vegOnly: true, vegFriendly: true, jain: true, hours: hrs("12:00", "23:00"), crowd: ["low", "high", "high"],
+    tags: ["veg", "thali", "unlimited"], note: "Unlimited pure-veg thali; go hungry.",
+  }),
+  food("rajdhani-ambience", "Rajdhani Thali", "gujarati-rajasthani", "Ambience Mall", "Gurugram", 28.5052, 77.0965, {
+    costForTwo: 1600, vegOnly: true, vegFriendly: true, jain: true, hours: hrs("12:00", "23:00"), crowd: ["low", "high", "high"],
+    tags: ["veg", "thali", "unlimited"], note: "Unlimited pure-veg thali inside Ambience Mall.",
+  }),
+  food("bikanervala-cp", "Bikanervala", "north-indian", "Connaught Place", "Delhi", 28.632, 77.219, {
+    costForTwo: 600, vegOnly: true, vegFriendly: true, jain: true, hours: hrs("08:00", "23:00"), crowd: ["medium", "high", "high"],
+    tags: ["veg", "budget", "chaat", "sweets", "quick"], note: "Pure-veg chaat, chole bhature and mithai.",
+  }),
+  food("andhra-bhavan", "Andhra Bhavan Canteen", "south-indian", "Ashoka Road", "Delhi", 28.617, 77.224, {
+    costForTwo: 500, vegOnly: false, vegFriendly: true, hours: hrs("12:00", "15:00"), crowd: ["medium", "high", "low"],
+    tags: ["thali", "budget", "spicy", "iconic"], note: "Famous unlimited Andhra thali (veg available); expect a queue at 1pm.",
+  }),
+  food("natraj-dahi-bhalle", "Natraj Dahi Bhalle Wala", "street-food", "Chandni Chowk", "Delhi", 28.656, 77.23, {
+    costForTwo: 200, vegOnly: true, vegFriendly: true, hours: hrs("10:00", "21:00"), crowd: ["high", "high", "high"],
+    tags: ["veg", "street-food", "budget", "iconic"], indoor: false, note: "Legendary dahi bhalla and aloo tikki; standing only.",
+  }),
+  food("paranthe-wali-gali", "Paranthe Wali Gali", "street-food", "Chandni Chowk", "Delhi", 28.6565, 77.231, {
+    costForTwo: 400, vegOnly: true, vegFriendly: true, jain: true, hours: hrs("09:00", "22:00"), crowd: ["high", "high", "high"],
+    tags: ["veg", "street-food", "budget", "iconic"], note: "Deep-fried stuffed parathas; cramped and crowded.",
+  }),
+  food("karims", "Karim's", "mughlai", "Jama Masjid", "Delhi", 28.6503, 77.2333, {
+    costForTwo: 800, vegOnly: false, vegFriendly: false, hours: hrs("09:00", "23:00"), crowd: ["high", "high", "high"],
+    tags: ["mughlai", "non-veg", "iconic"], note: "Meat-focused Mughlai institution; not for vegetarians.",
+  }),
+  food("lodi-garden-restaurant", "Lodi – The Garden Restaurant", "european", "Lodhi Road", "Delhi", 28.5921, 77.2204, {
+    costForTwo: 3000, vegOnly: false, vegFriendly: true, hours: hrs("12:00", "23:30"), crowd: ["low", "medium", "high"],
+    tags: ["garden-seating", "date", "splurge"], indoor: false, note: "Lantern-lit garden dining next to Lodhi Garden.",
+  }),
+  food("perch-khan", "Perch", "cafe", "Khan Market", "Delhi", 28.6005, 77.2272, {
+    costForTwo: 2000, vegOnly: false, vegFriendly: true, hours: hrs("09:00", "23:30"), crowd: ["low", "medium", "high"],
+    tags: ["cafe", "brunch", "wine"], note: "Small all-day café and wine bar.",
+  }),
+  food("blue-tokai-champa", "Blue Tokai Coffee", "cafe", "Champa Gali", "Delhi", 28.5182, 77.1962, {
+    costForTwo: 700, vegOnly: false, vegFriendly: true, hours: hrs("08:00", "22:00"), crowd: ["low", "medium", "high"],
+    tags: ["cafe", "coffee", "calm"], note: "Specialty coffee roastery café in Champa Gali.",
+  }),
+  food("nagaland-kitchen", "Nagaland's Kitchen", "naga", "Green Park", "Delhi", 28.559, 77.207, {
+    costForTwo: 1200, vegOnly: false, vegFriendly: false, hours: hrs("12:00", "23:00"), crowd: ["low", "medium", "medium"],
+    tags: ["northeast", "non-veg", "offbeat"], note: "Smoked pork and bamboo shoot; meat-heavy menu.",
+  }),
+  food("hauz-khas-social", "Hauz Khas Social", "cafe-bar", "Hauz Khas", "Delhi", 28.5534, 77.1944, {
+    costForTwo: 1800, vegOnly: false, vegFriendly: true, hours: hrs("11:00", "23:59"), crowd: ["low", "medium", "high"],
+    tags: ["cafe", "nightlife", "lake-view", "music"], note: "Lake-view café-bar; calm at noon, packed and loud by night.",
+  }),
+  food("farzi-cyberhub", "Farzi Café", "modern-indian", "Cyber City", "Gurugram", 28.4951, 77.0886, {
+    costForTwo: 2200, vegOnly: false, vegFriendly: true, hours: hrs("12:00", "23:59"), crowd: ["low", "medium", "high"],
+    tags: ["modern-indian", "music", "nightlife"], note: "Theatrical modern Indian; live acts on some nights.",
+  }),
 ];

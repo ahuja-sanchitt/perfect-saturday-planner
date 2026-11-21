@@ -34,7 +34,8 @@ export async function fallbackPlan(ctx: ToolContext, tracer: Tracer, exec: Exec,
     return !(prefs.avoidCrowds && crowdAt(p, hh) === "high");
   };
   // Prefer curated places (known hours/crowds/prices) over raw OSM entries.
-  const byTrust = (xs: Place[]) => [...xs.filter((p) => p.source !== "osm"), ...xs.filter((p) => p.source === "osm")];
+  const rank = { swiggy: 0, curated: 0, mock: 1, osm: 2 } as const;
+  const byTrust = (xs: Place[]) => [...xs].sort((a, b) => rank[a.source] - rank[b.source]);
   // Budget-aware picking: reserve ~₹450 for cabs and never pick a place the remaining budget can't cover.
   let remaining = budget - 450;
   const affordable = (p: Place) => p.costPerPerson * group <= remaining;

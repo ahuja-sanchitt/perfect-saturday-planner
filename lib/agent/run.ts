@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import type OpenAI from "openai";
 import { responseCache, stableStringify } from "@/lib/cache/store";
 import { CURATED_PLACES } from "@/lib/data/curated";
+import { MOCK_PLACES } from "@/lib/data/mock";
 import { DINEOUT_SNAPSHOT } from "@/lib/data/snapshot";
 import { osmPlaceById } from "@/lib/providers/live";
 import { upcomingSaturday } from "@/lib/geo";
@@ -161,7 +162,7 @@ async function plannerLoop(
     ctx.refinement = { request: req.changeRequest, previousCost: cost, previousMinutes: minutes, previousPlaceIds: req.previous.plan.stops.map((s) => s.placeId) };
     // Re-register previous places so the model can keep them without re-searching.
     for (const s of req.previous.plan.stops) {
-      const known = [...CURATED_PLACES, ...DINEOUT_SNAPSHOT.places].find((p) => p.id === s.placeId) ?? osmPlaceById(s.placeId);
+      const known = [...CURATED_PLACES, ...MOCK_PLACES, ...DINEOUT_SNAPSHOT.places].find((p) => p.id === s.placeId) ?? osmPlaceById(s.placeId);
       if (known) ctx.places.set(known.id, known);
     }
   }

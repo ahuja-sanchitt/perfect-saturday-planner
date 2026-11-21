@@ -15,6 +15,7 @@ import { z } from "zod";
 import { zodTextFormat } from "openai/helpers/zod";
 import { runAgent, type PlanRequest } from "@/lib/agent/run";
 import { CURATED_PLACES } from "@/lib/data/curated";
+import { MOCK_PLACES } from "@/lib/data/mock";
 import { DINEOUT_SNAPSHOT } from "@/lib/data/snapshot";
 import osm from "@/data/ncr/osm.json";
 import { getOpenAI, hasLlm, toUsage } from "@/lib/llm/client";
@@ -23,6 +24,7 @@ import type { Place, Plan, Preferences, RunStats, TraceEvent } from "@/lib/types
 
 process.env.DISABLE_RESPONSE_CACHE = "1";
 process.env.QUIET_RUN_LOGS = "1";
+process.env.DISABLE_JITTER = "1";
 
 interface Case {
   id: string;
@@ -41,7 +43,7 @@ const noJudge = args.includes("--no-judge");
 
 const cases: Case[] = JSON.parse(readFileSync(path.join(process.cwd(), "evals", "cases.json"), "utf8"));
 const selected = only.length ? cases.filter((c) => only.includes(c.id)) : cases;
-const PLACES = new Map<string, Place>([...CURATED_PLACES, ...DINEOUT_SNAPSHOT.places, ...((osm as { places: Place[] }).places ?? [])].map((p) => [p.id, p]));
+const PLACES = new Map<string, Place>([...CURATED_PLACES, ...MOCK_PLACES, ...DINEOUT_SNAPSHOT.places, ...((osm as { places: Place[] }).places ?? [])].map((p) => [p.id, p]));
 
 const JudgeZ = z.object({
   personalization: z.number(),

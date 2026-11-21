@@ -37,7 +37,7 @@ export interface Place {
   diet?: { vegOnly: boolean; vegFriendly: boolean; jainOptions?: boolean };
   tags: string[];
   note?: string; // local tip
-  source: "curated" | "osm" | "swiggy";
+  source: "curated" | "osm" | "swiggy" | "mock"; // mock = fictional sample venue, labelled in the UI
   verified?: boolean;
   distanceKm?: number;
 }
