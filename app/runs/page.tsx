@@ -33,8 +33,8 @@ export default function RunsPage() {
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-8">
       <div className="flex items-baseline justify-between gap-4">
-        <h1 className="text-2xl font-bold">Agent runs</h1>
-        <Link href="/" className="text-sm font-medium text-accent hover:underline">← Back to planner</Link>
+        <h1 className="font-display text-2xl font-semibold">Agent runs</h1>
+        <Link href="/" className="text-sm font-medium text-accent hover:underline">Back to planner</Link>
       </div>
       <p className="text-sm text-muted">{data?.note ?? "Loading…"}</p>
 
@@ -53,7 +53,7 @@ export default function RunsPage() {
           <div className="overflow-x-auto rounded-xl border border-line">
             <table className="w-full text-sm">
               <thead className="bg-subtle text-left text-muted">
-                <tr><th className="px-3 py-2">Prompt</th><th className="px-3 py-2">Runs</th><th className="px-3 py-2">👍</th><th className="px-3 py-2">👎</th><th className="px-3 py-2">Avg cost</th></tr>
+                <tr><th className="px-3 py-2">Prompt</th><th className="px-3 py-2">Runs</th><th className="px-3 py-2">Liked</th><th className="px-3 py-2">Disliked</th><th className="px-3 py-2">Avg cost</th></tr>
               </thead>
               <tbody>
                 {[...byVersion.entries()].map(([v, e]) => (
@@ -76,7 +76,7 @@ export default function RunsPage() {
                 <span className="rounded-full bg-subtle px-2 py-0.5 text-xs">{r.outcome}</span>
                 <span className="min-w-0 flex-1 truncate">{r.planTitle ?? r.input}</span>
                 {r.stats && <span className="font-mono text-xs text-muted">${r.stats.costUsd.toFixed(4)} · {r.stats.cacheHitPct}% cached · {(r.stats.totalMs / 1000).toFixed(1)}s</span>}
-                {r.feedback && <span>{r.feedback.rating === "up" ? "👍" : "👎"}</span>}
+                {r.feedback && <span className={r.feedback.rating === "up" ? "text-good" : "text-bad"}>{r.feedback.rating === "up" ? "liked" : "disliked"}</span>}
               </button>
               {open === r.runId && (
                 <div className="space-y-1 border-t border-line px-4 py-3 font-mono text-xs">

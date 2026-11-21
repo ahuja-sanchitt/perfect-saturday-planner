@@ -2,6 +2,7 @@
 import { useState, useSyncExternalStore } from "react";
 import { Console } from "./Console";
 import { PlanView, RefineBox } from "./PlanView";
+import { PanelIcon, Sparkle, SunIcon } from "./icons";
 import { ThinkingBanner, ThinkingCard } from "./Thinking";
 import { usePlanner, type FormInput } from "./usePlanner";
 
@@ -85,17 +86,17 @@ export function Planner() {
       <main className="flex min-h-0 min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between gap-3 border-b border-line px-4 py-3.5 sm:px-8">
           <div className="flex items-center gap-2.5">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>
-            <span className="text-[17px] font-bold">Perfect Saturday</span>
+            <SunIcon className="text-accent" />
+            <span className="font-display text-xl font-semibold tracking-[-0.02em]">Perfect Saturday</span>
             <span className="rounded-full bg-subtle px-2 py-0.5 text-xs font-semibold text-muted">Delhi NCR</span>
           </div>
           <button
             type="button"
             onClick={toggleConsole}
             aria-pressed={consoleOpen}
-            className={`hidden h-10 items-center gap-2 rounded-xl border px-3.5 text-[13px] font-semibold lg:flex ${consoleOpen ? "border-c-bg bg-c-bg text-white" : "border-line-strong bg-surface text-ink"}`}
+            className={`hidden h-10 items-center gap-2 rounded-xl border px-3.5 text-sm font-semibold lg:flex ${consoleOpen ? "border-c-bg bg-c-bg text-white" : "border-line-strong bg-surface text-ink"}`}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M15 4v16" /></svg>
+            <PanelIcon />
             {consoleOpen ? "Hide agent console" : "Show agent console"}
           </button>
         </header>
@@ -103,20 +104,20 @@ export function Planner() {
         {/* Mobile tabs */}
         <div role="tablist" aria-label="View" className="mx-4 mt-3 flex gap-1 rounded-xl bg-subtle p-1 lg:hidden">
           {(["plan", "trace"] as const).map((t) => (
-            <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={`h-10 flex-1 rounded-lg text-sm font-semibold ${tab === t ? "bg-surface text-ink shadow-sm" : "text-muted"}`}>
-              {t === "plan" ? "Plan" : <>Agent trace{running && <span className="pulse-dot ml-1.5 text-accent">●</span>}</>}
+            <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={`flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg text-[15px] font-semibold ${tab === t ? "bg-surface text-ink" : "text-muted"}`}>
+              {t === "plan" ? "Plan" : <>Agent trace{running && <Sparkle size={13} spinning className="text-accent" />}</>}
             </button>
           ))}
         </div>
 
         <div className={`min-h-0 flex-1 overflow-y-auto ${tab === "trace" ? "hidden lg:block" : ""}`}>
           {/* Input */}
-          <section className="space-y-3 border-b border-line px-4 py-5 sm:px-8">
+          <section className="space-y-3 border-b border-line px-4 py-6 sm:px-8">
             <div className="flex items-center justify-between">
-              <label htmlFor="describe" className="text-[13px] font-semibold text-muted">
+              <label htmlFor="describe" className="text-sm font-semibold">
                 {useForm ? "Your preferences" : "Describe your Saturday"}
               </label>
-              <button type="button" onClick={() => setUseForm((f) => !f)} className="text-[13px] font-medium text-accent hover:underline">
+              <button type="button" onClick={() => setUseForm((f) => !f)} className="text-sm font-medium text-accent underline-offset-4 hover:underline">
                 {useForm ? "Type it instead" : "Use a form instead"}
               </button>
             </div>
@@ -137,16 +138,16 @@ export function Planner() {
                 rows={2}
                 maxLength={1000}
                 placeholder="e.g. Tired but want something fun. ₹2,000, 4 hrs, South Delhi, veg, hate crowds"
-                className="w-full resize-none rounded-xl border border-line-strong bg-surface px-4 py-3 text-[15px] outline-none placeholder:text-muted focus:border-accent"
+                className="w-full resize-none rounded-xl border border-line-strong bg-surface px-4 py-3 text-base outline-none placeholder:text-muted focus:border-accent"
               />
             )}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <button type="button" onClick={submit} disabled={running || (!useForm && !text.trim())} className="h-12 rounded-xl bg-accent px-6 text-[15px] font-semibold text-accent-ink disabled:opacity-50">
+              <button type="button" onClick={submit} disabled={running || (!useForm && !text.trim())} className="h-12 flex-none rounded-xl bg-accent px-6 text-base font-semibold text-accent-ink disabled:opacity-50">
                 {running ? "Planning…" : "Plan my Saturday"}
               </button>
               <div className="flex flex-wrap gap-2">
                 {EXAMPLES.map((ex) => (
-                  <button key={ex.label} type="button" disabled={running} onClick={() => runExample(ex)} className="h-8 rounded-full border border-line-strong bg-surface px-3 text-[13px] text-ink/80 hover:border-accent disabled:opacity-50">
+                  <button key={ex.label} type="button" disabled={running} onClick={() => runExample(ex)} className="h-9 rounded-full border border-line-strong bg-surface px-3.5 text-sm hover:border-accent disabled:opacity-50">
                     {ex.label}
                   </button>
                 ))}
@@ -155,25 +156,25 @@ export function Planner() {
           </section>
 
           {/* Output */}
-          <section className="space-y-5 px-4 pb-5 sm:px-8">
-            {running && p.plan ? <ThinkingBanner trace={p.trace} startedAt={p.startedAt} change={p.changes[p.changes.length - 1] ?? null} /> : <div className="h-0" />}
+          <section className="space-y-6 px-4 py-6 sm:px-8">
+            {running && p.plan && <ThinkingBanner trace={p.trace} startedAt={p.startedAt} change={p.changes[p.changes.length - 1] ?? null} />}
             {p.status === "idle" && !p.plan && <EmptyState />}
 
             {p.notice && (
-              <div role="status" className={`rounded-xl border px-4 py-3 text-sm ${p.notice.level === "error" ? "border-bad/40 text-bad" : "border-line-strong bg-subtle text-ink"}`}>
+              <div role="status" className={`rounded-xl border px-4 py-3 text-[15px] ${p.notice.level === "error" ? "border-bad/40 text-bad" : "border-line-strong bg-subtle text-ink"}`}>
                 {p.notice.text}
               </div>
             )}
 
             {p.status === "clarify" && (
-              <div className="space-y-4 rounded-2xl border border-line bg-surface p-4">
-                <p className="text-sm font-semibold">Quick question{p.questions.length > 1 ? "s" : ""} before I plan:</p>
+              <div className="space-y-5 rounded-2xl border border-line bg-surface p-5">
+                <h2 className="font-display text-lg font-semibold">Quick question{p.questions.length > 1 ? "s" : ""} before I plan</h2>
                 {p.questions.map((q) => (
                   <div key={q.question} className="space-y-2">
-                    <p className="text-[15px]">{q.question}</p>
+                    <p className="text-base">{q.question}</p>
                     <div className="flex flex-wrap gap-2">
                       {q.options.map((o) => (
-                        <button key={o} type="button" onClick={() => pick(q.question, o)} aria-pressed={answers[q.question] === o} className={`h-11 rounded-full border px-4 text-sm ${answers[q.question] === o ? "border-accent bg-accent/10 font-semibold text-accent" : "border-line-strong bg-surface"}`}>
+                        <button key={o} type="button" onClick={() => pick(q.question, o)} aria-pressed={answers[q.question] === o} className={`h-11 rounded-full border px-4 text-sm ${answers[q.question] === o ? "border-accent bg-accent-soft font-semibold text-accent" : "border-line-strong bg-surface"}`}>
                           {o}
                         </button>
                       ))}
@@ -186,16 +187,16 @@ export function Planner() {
             {running && !p.plan && <ThinkingCard trace={p.trace} startedAt={p.startedAt} onShowTrace={() => setTab("trace")} />}
 
             {p.changes.length > 0 && (
-              <div className="flex flex-wrap gap-2 text-xs text-muted">
+              <div className="flex flex-wrap items-center gap-2 text-sm text-muted">
                 <span>Your changes:</span>
                 {p.changes.map((c, i) => (
-                  <span key={i} className="rounded-full bg-subtle px-2.5 py-1">{c}</span>
+                  <span key={i} className="rounded-full bg-subtle px-3 py-1 text-ink">{c}</span>
                 ))}
               </div>
             )}
 
             {p.plan && (
-              <div className={running ? "updating pointer-events-none" : ""} aria-busy={running}>
+              <div className={`transition-opacity duration-300 ${running ? "pointer-events-none opacity-55" : ""}`} aria-busy={running}>
                 <PlanView plan={p.plan} />
               </div>
             )}
@@ -224,40 +225,40 @@ function FormFields({ form, setForm }: { form: FormInput; setForm: (f: FormInput
     const cur = form[key] ?? [];
     setForm({ ...form, [key]: cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v] });
   };
-  const field = "h-11 w-full rounded-xl border border-line-strong bg-surface px-3 text-[15px] outline-none focus:border-accent";
+  const field = "h-11 w-full rounded-xl border border-line-strong bg-surface px-3 text-base text-ink outline-none focus:border-accent";
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-      <label className="col-span-2 flex flex-col gap-1 text-xs font-medium text-muted">
+      <label className="col-span-2 flex flex-col gap-1.5 text-sm font-medium">
         Area in NCR
         <input className={field} value={form.area ?? ""} onChange={(e) => setForm({ ...form, area: e.target.value })} placeholder="e.g. Hauz Khas, Gurugram" />
       </label>
-      <label className="flex flex-col gap-1 text-xs font-medium text-muted">
+      <label className="flex flex-col gap-1.5 text-sm font-medium">
         Budget (₹)
         <input className={field} type="number" min={0} step={100} value={form.budget ?? ""} onChange={(e) => setForm({ ...form, budget: e.target.value ? Number(e.target.value) : undefined })} />
       </label>
-      <label className="flex flex-col gap-1 text-xs font-medium text-muted">
+      <label className="flex flex-col gap-1.5 text-sm font-medium">
         Hours free
         <input className={field} type="number" min={1} max={12} value={form.hours ?? ""} onChange={(e) => setForm({ ...form, hours: e.target.value ? Number(e.target.value) : undefined })} />
       </label>
-      <label className="col-span-2 flex flex-col gap-1 text-xs font-medium text-muted sm:col-span-4">
+      <label className="col-span-2 flex flex-col gap-1.5 text-sm font-medium sm:col-span-4">
         Mood
         <input className={field} value={form.mood ?? ""} onChange={(e) => setForm({ ...form, mood: e.target.value })} placeholder="tired but wants to do something fun" />
       </label>
       <fieldset className="col-span-2 sm:col-span-4">
-        <legend className="mb-1 text-xs font-medium text-muted">Interests</legend>
+        <legend className="mb-2 text-sm font-medium">Interests</legend>
         <div className="flex flex-wrap gap-2">
           {INTERESTS.map((i) => (
-            <button key={i} type="button" aria-pressed={form.interests?.includes(i)} onClick={() => toggle("interests", i)} className={`h-9 rounded-full border px-3 text-[13px] ${form.interests?.includes(i) ? "border-accent bg-accent/10 font-semibold text-accent" : "border-line-strong bg-surface"}`}>
+            <button key={i} type="button" aria-pressed={form.interests?.includes(i)} onClick={() => toggle("interests", i)} className={`h-9 rounded-full border px-3.5 text-sm ${form.interests?.includes(i) ? "border-accent bg-accent-soft font-semibold text-accent" : "border-line-strong bg-surface"}`}>
               {i}
             </button>
           ))}
         </div>
       </fieldset>
       <fieldset className="col-span-2 sm:col-span-4">
-        <legend className="mb-1 text-xs font-medium text-muted">Constraints</legend>
+        <legend className="mb-2 text-sm font-medium">Constraints</legend>
         <div className="flex flex-wrap gap-2">
           {["vegetarian", "vegan", "jain", "avoid crowded places", "near metro", "no alcohol"].map((c) => (
-            <button key={c} type="button" aria-pressed={form.constraints?.includes(c)} onClick={() => toggle("constraints", c)} className={`h-9 rounded-full border px-3 text-[13px] ${form.constraints?.includes(c) ? "border-accent bg-accent/10 font-semibold text-accent" : "border-line-strong bg-surface"}`}>
+            <button key={c} type="button" aria-pressed={form.constraints?.includes(c)} onClick={() => toggle("constraints", c)} className={`h-9 rounded-full border px-3.5 text-sm ${form.constraints?.includes(c) ? "border-accent bg-accent-soft font-semibold text-accent" : "border-line-strong bg-surface"}`}>
               {c}
             </button>
           ))}
@@ -269,12 +270,12 @@ function FormFields({ form, setForm }: { form: FormInput; setForm: (f: FormInput
 
 function EmptyState() {
   return (
-    <div className="space-y-3 py-6 text-[15px] text-muted">
-      <p className="text-ink">Tell me how you&apos;re feeling, your budget and how much time you have. I&apos;ll plan a realistic Saturday in Delhi NCR.</p>
-      <ul className="list-disc space-y-1 pl-5 text-sm">
-        <li>Real places: curated local picks plus OpenStreetMap, with real travel times, weather and air quality.</li>
-        <li>Every plan is checked against your budget, time, diet and crowd preferences before you see it.</li>
-        <li>Open the agent console to watch each tool call, cache hit and retry live.</li>
+    <div className="max-w-[65ch] space-y-4 py-4">
+      <h2 className="font-display text-2xl font-semibold tracking-[-0.02em] text-balance">Tell me your mood, budget and free time.</h2>
+      <p className="text-base text-muted">I&apos;ll plan a realistic Saturday in Delhi NCR, check it against your budget, time, diet and crowd limits, and explain why each stop suits you.</p>
+      <ul className="space-y-2 text-[15px] text-muted">
+        <li>Places come from a local guide and OpenStreetMap, with live weather, air quality and travel times.</li>
+        <li>The agent console on the right shows every tool call, cache hit and retry as it&nbsp;happens.</li>
       </ul>
     </div>
   );

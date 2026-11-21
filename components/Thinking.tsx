@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { Sparkle } from "./icons";
 import type { TraceItem } from "./usePlanner";
 
 // Status lines shown for whatever the agent is doing right now.
@@ -19,8 +20,6 @@ const PHRASES: Record<string, string[]> = {
 };
 const IDLE = ["Brewing chai", "Finding parking in CP", "Bargaining at Sarojini", "Waiting for the metro", "Counting Mughal tombs", "Avoiding the crowds", "Asking a rickshaw-wala"];
 
-const GLYPHS = ["·", "✢", "✳", "✶", "✻", "✽", "✻", "✶", "✳", "✢"];
-
 const STAGES: { label: string; done: (names: Set<string>) => boolean }[] = [
   { label: "Understand", done: (n) => n.has("parse_preferences") },
   { label: "Weather", done: (n) => n.has("get_weather") },
@@ -32,74 +31,77 @@ const STAGES: { label: string; done: (names: Set<string>) => boolean }[] = [
 
 const keyFor = (name: string) => (name.startsWith("planner turn") ? "planner" : name);
 
-/** Hook: ticking clock for animations (paused for reduced-motion users). */
-function useTick(ms: number) {
-  const [state, setState] = useState({ tick: 0, now: 0 });
+/** One-second clock for the elapsed counter and phrase rotation. */
+function useClock() {
+  const [now, setNow] = useState(0);
   useEffect(() => {
-    const reduce = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    const id = setInterval(() => setState((s) => ({ tick: s.tick + 1, now: Date.now() })), reduce ? ms * 8 : ms);
+    const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
-  }, [ms]);
-  return state;
+  }, []);
+  return now;
 }
 
 function useThinkingState(trace: TraceItem[], startedAt: number | null) {
-  const { tick, now } = useTick(120);
+  const now = useClock();
   const steps = trace.filter((t): t is Extract<TraceItem, { kind: "step" }> => t.kind === "step").map((t) => t.step);
   const running = [...steps].reverse().find((s) => s.running);
   const lastThought = [...trace].reverse().find((t): t is Extract<TraceItem, { kind: "thinking" }> => t.kind === "thinking");
   const names = new Set(steps.filter((s) => !s.running).map((s) => keyFor(s.name)));
-
-  const pool = running ? PHRASES[keyFor(running.name)] ?? IDLE : IDLE;
-  const phrase = pool[Math.floor(tick / 18) % pool.length]; // rotate every ~2.2s
-  const glyph = GLYPHS[tick % GLYPHS.length];
   const elapsed = startedAt && now ? Math.max(0, Math.floor((now - startedAt) / 1000)) : 0;
+  const pool = running ? PHRASES[keyFor(running.name)] ?? IDLE : IDLE;
+  const phrase = pool[Math.floor(elapsed / 3) % pool.length]; // a new line every ~3s
   const tools = steps.filter((s) => s.kind === "tool" && !s.running).length;
   const tokens = steps.reduce((a, s) => a + (s.usage ? s.usage.inputTokens + s.usage.outputTokens : 0), 0);
   // The model's reasoning summaries start with a bold headline, e.g. "**Estimating costs**".
   const headline = lastThought?.text.match(/\*\*(.+?)\*\*/)?.[1] ?? null;
-  return { phrase, glyph, elapsed, tools, tokens, headline, names, runningName: running?.name };
+  return { phrase, elapsed, tools, tokens, headline, names };
+}
+
+function meta(s: ReturnType<typeof useThinkingState>) {
+  return [`${s.elapsed}s`, s.tools ? `${s.tools} tools` : null, s.tokens ? `${(s.tokens / 1000).toFixed(1)}k tokens` : null].filter(Boolean).join(" · ");
 }
 
 export function ThinkingCard({ trace, startedAt, onShowTrace }: { trace: TraceItem[]; startedAt: number | null; onShowTrace: () => void }) {
   const s = useThinkingState(trace, startedAt);
   return (
-    <div className="space-y-5" aria-live="polite">
-      <div className="rounded-2xl border border-line bg-surface px-5 py-4">
-        <div className="flex items-center gap-3">
-          <span className="w-5 text-center font-mono text-xl leading-none text-accent" aria-hidden="true">{s.glyph}</span>
-          <span className="shimmer-text min-w-0 flex-1 truncate text-[16px] font-semibold">{s.phrase}…</span>
-          <span className="flex-none font-mono text-xs text-muted">
-            {s.elapsed}s{s.tools ? ` · ${s.tools} tools` : ""}{s.tokens ? ` · ${(s.tokens / 1000).toFixed(1)}k tok` : ""}
-          </span>
+    <div className="space-y-6" aria-live="polite">
+      <div className="rounded-2xl border border-line bg-surface px-5 py-5">
+        <div className="flex items-start gap-3">
+          <Sparkle size={22} spinning className="mt-0.5 flex-none text-accent" />
+          <div className="min-w-0 flex-1">
+            <p key={s.phrase} className="status-in font-display text-lg font-semibold">{s.phrase}…</p>
+            <p className="mt-0.5 text-sm text-muted tabular-nums">
+              {s.headline ? <span className="text-ink/80">{s.headline} · </span> : null}
+              {meta(s)}
+            </p>
+          </div>
         </div>
-        {s.headline && <p className="mt-1.5 pl-8 text-[13px] italic text-muted">{s.headline}</p>}
-        <ol className="mt-4 flex items-center gap-1.5 pl-8" aria-label="Progress">
+        <ol className="mt-5 grid grid-cols-6 gap-2" aria-label="Progress">
           {STAGES.map((st, i) => {
             const done = st.done(s.names);
             const active = !done && (i === 0 || STAGES[i - 1].done(s.names));
             return (
-              <li key={st.label} className="flex min-w-0 flex-1 flex-col gap-1">
-                <span className={`h-1 rounded-full ${done ? "bg-accent" : active ? "stage-active" : "bg-line"}`} />
-                <span className={`hidden truncate text-[11px] sm:block ${done || active ? "text-ink" : "text-muted"}`}>{st.label}</span>
+              <li key={st.label} className="flex min-w-0 flex-col gap-1.5" aria-current={active ? "step" : undefined}>
+                <span className={`h-1.5 rounded-full ${done ? "bg-accent" : active ? "bg-accent/40" : "bg-line"}`} />
+                <span className={`hidden truncate text-xs sm:block ${done || active ? "text-ink" : "text-muted"}`}>{st.label}</span>
               </li>
             );
           })}
         </ol>
-        <button type="button" onClick={onShowTrace} className="mt-3 pl-8 text-[13px] font-medium text-accent lg:hidden">
-          Watch the agent work →
+        <button type="button" onClick={onShowTrace} className="mt-4 text-sm font-medium text-accent lg:hidden">
+          Watch the agent work
         </button>
       </div>
 
-      {/* Skeleton itinerary while the plan is being built */}
+      {/* Placeholder itinerary while the plan is being built */}
       <div className="space-y-3" aria-hidden="true">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="grid grid-cols-[52px_minmax(0,1fr)] gap-3 sm:grid-cols-[64px_minmax(0,1fr)] sm:gap-4" style={{ opacity: 1 - i * 0.22 }}>
-            <div className="skeleton mt-3.5 h-3 w-10 rounded" />
-            <div className="space-y-2 rounded-2xl border border-line bg-surface px-4 py-3.5">
+          <div key={i} className="grid grid-cols-[56px_minmax(0,1fr)] gap-3 sm:grid-cols-[68px_minmax(0,1fr)] sm:gap-4" style={{ opacity: 1 - i * 0.25 }}>
+            <div className="skeleton mt-4 h-3.5 w-11 rounded" />
+            <div className="space-y-2.5 rounded-2xl border border-line bg-surface px-5 py-4">
               <div className="skeleton h-4 w-1/2 rounded" />
-              <div className="skeleton h-3 w-5/6 rounded" />
-              <div className="skeleton h-3 w-2/3 rounded" />
+              <div className="skeleton h-3.5 w-5/6 rounded" />
+              <div className="skeleton h-3.5 w-2/3 rounded" />
             </div>
           </div>
         ))}
@@ -108,22 +110,19 @@ export function ThinkingCard({ trace, startedAt, onShowTrace }: { trace: TraceIt
   );
 }
 
-/** Compact sticky banner used while an existing plan is being updated. */
+/** Sticky banner used while an existing plan is being updated; the old plan stays readable underneath. */
 export function ThinkingBanner({ trace, startedAt, change }: { trace: TraceItem[]; startedAt: number | null; change: string | null }) {
   const s = useThinkingState(trace, startedAt);
   return (
-    <div className="sticky top-0 z-10 -mx-4 border-b border-line bg-bg/90 px-4 py-3 backdrop-blur sm:-mx-8 sm:px-8" aria-live="polite">
+    <div className="sticky top-0 z-10 -mx-4 -mt-6 border-b border-line bg-bg px-4 py-3.5 sm:-mx-8 sm:px-8" aria-live="polite">
       <div className="flex items-center gap-3">
-        <span className="w-5 text-center font-mono text-lg leading-none text-accent" aria-hidden="true">{s.glyph}</span>
+        <Sparkle size={20} spinning className="flex-none text-accent" />
         <div className="min-w-0 flex-1">
-          <div className="shimmer-text truncate text-[15px] font-semibold">{s.phrase}…</div>
-          <div className="truncate text-xs text-muted">
-            Updating your plan{change ? `: “${change}”` : ""} · {s.elapsed}s{s.tools ? ` · ${s.tools} tools` : ""}
-          </div>
+          <p key={s.phrase} className="status-in truncate font-semibold">{s.phrase}…</p>
+          <p className="truncate text-sm text-muted tabular-nums">
+            Updating your plan{change ? `: “${change}”` : ""} · {meta(s)}
+          </p>
         </div>
-      </div>
-      <div className="progress-track mt-2.5 h-0.5 overflow-hidden rounded-full bg-line">
-        <div className="progress-bar h-full w-1/3 rounded-full bg-accent" />
       </div>
     </div>
   );
