@@ -52,7 +52,8 @@ export function loadPrompt(id: string, version?: string): LoadedPrompt {
   const key = `${id}@${v}`;
   const hit = cache.get(key);
   if (hit) return hit;
-  const raw = readFileSync(path.join(ROOT, id, `${v}.md`), "utf8");
+  // Normalise line endings so the content hash is identical on Windows and Linux (Vercel).
+  const raw = readFileSync(path.join(ROOT, id, `${v}.md`), "utf8").replace(/\r\n/g, "\n");
   const { meta, body } = parseFrontmatter(raw);
   const hash = createHash("sha256").update(body).digest("hex").slice(0, 8);
   const envModel = process.env[`${id.toUpperCase()}_MODEL`]; // e.g. PLANNER_MODEL
