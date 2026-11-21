@@ -3,9 +3,8 @@
 An AI agent that plans a realistic, personalised Saturday in Delhi NCR. You describe your mood, budget, free time, interests and constraints. The agent searches real places, checks the weather and air quality, routes the day, and validates it against your constraints. You get a timed plan that explains why each stop fits you, and you can watch every step live in the agent console.
 
 - **Live app:** https://delhi-saturday.vercel.app
-- **Instant demo** (replays a recorded production run): https://delhi-saturday.vercel.app/?replay=1
 - **Runs dashboard:** https://delhi-saturday.vercel.app/runs
-- **Loom walkthrough:** _link coming soon_
+- **Loom walkthrough:** https://www.loom.com/share/73a5a3b787f1462ebf2df48c9c63ff78
 
 ---
 
