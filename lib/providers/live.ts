@@ -202,3 +202,8 @@ async function searchOsmLive(lat: number, lng: number, category: string, radiusM
       .filter((p): p is Place => p !== null);
   });
 }
+
+export function osmPlaceById(id: string): Place | undefined {
+  const p = OSM_SNAPSHOT.places.find((x) => x.id === id);
+  return p ? ({ ...p, osmHours: undefined } as Place) : undefined;
+}

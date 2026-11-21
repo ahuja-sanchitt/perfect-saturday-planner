@@ -1,6 +1,6 @@
 {
   "active": {
-    "planner": "v2",
+    "planner": "v3",
     "parser": "v1",
     "judge": "v1"
   }

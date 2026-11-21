@@ -35,12 +35,19 @@ export async function fallbackPlan(ctx: ToolContext, tracer: Tracer, exec: Exec,
   };
   // Prefer curated places (known hours/crowds/prices) over raw OSM entries.
   const byTrust = (xs: Place[]) => [...xs.filter((p) => p.source !== "osm"), ...xs.filter((p) => p.source === "osm")];
-  const acts = byTrust(all.filter((p) => p.kind === "activity"));
+  // Budget-aware picking: reserve ~₹450 for cabs and never pick a place the remaining budget can't cover.
+  let remaining = budget - 450;
+  const affordable = (p: Place) => p.costPerPerson * group <= remaining;
+  const take = (p: Place | undefined) => {
+    if (p) remaining -= p.costPerPerson * group;
+    return p;
+  };
+  const acts = byTrust(all.filter((p) => p.kind === "activity")).sort((a, b) => a.costPerPerson - b.costPerPerson || 0);
   const foods = byTrust(all.filter((p) => p.kind === "food"));
-  const first = acts.find((p) => okAt(p, start) && (!badAir || p.indoor)) ?? acts.find((p) => okAt(p, start));
+  const first = take(acts.find((p) => okAt(p, start) && affordable(p) && (!badAir || p.indoor)) ?? acts.find((p) => okAt(p, start) && affordable(p)));
   const lunchAt = Math.max(start + 75 + 20, 12 * 60 + 30);
-  const lunch = foods.find((p) => okAt(p, lunchAt));
-  const third = hours >= 4 ? acts.find((p) => p !== first && okAt(p, lunchAt + 80) && (!badAir || p.indoor)) : undefined;
+  const lunch = take(foods.find((p) => okAt(p, lunchAt) && affordable(p)));
+  const third = hours >= 4 ? take(acts.find((p) => p !== first && okAt(p, lunchAt + 80) && affordable(p) && (!badAir || p.indoor))) : undefined;
   const picks = [first, lunch, third].filter((p): p is Place => Boolean(p));
   if (!picks.length) return null;
 

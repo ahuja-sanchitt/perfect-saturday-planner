@@ -114,19 +114,25 @@ async function main() {
   if (!hasLlm()) console.warn("⚠ OPENAI_API_KEY not set — running deterministic fallback only, judge disabled.\n");
   const runs = versions.length ? versions : [undefined];
   const results: Awaited<ReturnType<typeof runCase>>[] = [];
-  for (const pv of runs) {
-    for (const c of selected) {
-      process.stdout.write(`[${pv ?? "active"}] ${c.id} … `);
-      try {
-        const r = await runCase(c, pv);
-        results.push(r);
-        const failed = Object.entries(r.checks).filter(([, ok]) => !ok).map(([k]) => k);
-        console.log(`${r.passed ? "PASS" : "FAIL"} ${failed.length ? `(${failed.join(", ")})` : ""} ${r.judge ? `judge=${avgJudge(r.judge).toFixed(1)}` : ""} $${r.costUsd.toFixed(4)} ${(r.ms / 1000).toFixed(1)}s`);
-      } catch (e) {
-        console.log(`ERROR ${(e as Error).message}`);
+  // Small worker pool: 4 cases in flight at once.
+  const jobs = runs.flatMap((pv) => selected.map((c) => ({ pv, c })));
+  const concurrency = Number(flag("concurrency") ?? 4);
+  let next = 0;
+  await Promise.all(
+    Array.from({ length: concurrency }, async () => {
+      while (next < jobs.length) {
+        const { pv, c } = jobs[next++];
+        try {
+          const r = await runCase(c, pv);
+          results.push(r);
+          const failed = Object.entries(r.checks).filter(([, ok]) => !ok).map(([k]) => k);
+          console.log(`[${pv ?? "active"}] ${c.id}: ${r.passed ? "PASS" : "FAIL"} ${failed.length ? `(${failed.join(", ")})` : ""} ${r.judge ? `judge=${avgJudge(r.judge).toFixed(1)}` : ""} ${r.costUsd.toFixed(4)} ${(r.ms / 1000).toFixed(1)}s`);
+        } catch (e) {
+          console.log(`[${pv ?? "active"}] ${c.id}: ERROR ${(e as Error).message}`);
+        }
       }
-    }
-  }
+    }),
+  );
 
   // Summary table per version
   console.log("\n| planner | pass rate | judge avg (1–5) | personalization | realism | constraints | delight | avg cost | avg cache hit | avg latency |");

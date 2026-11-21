@@ -4,6 +4,7 @@ import type OpenAI from "openai";
 import { responseCache, stableStringify } from "@/lib/cache/store";
 import { CURATED_PLACES } from "@/lib/data/curated";
 import { DINEOUT_SNAPSHOT } from "@/lib/data/snapshot";
+import { osmPlaceById } from "@/lib/providers/live";
 import { upcomingSaturday } from "@/lib/geo";
 import { getOpenAI, hasLlm, toUsage } from "@/lib/llm/client";
 import { Tracer } from "@/lib/obs/trace";
@@ -23,8 +24,8 @@ export interface PlanRequest {
   promptVersion?: string; // planner A/B override, e.g. "v1"
 }
 
-const MAX_TURNS = 8;
-const WALL_CLOCK_MS = 55_000;
+const MAX_TURNS = 10;
+const WALL_CLOCK_MS = 85_000;
 
 export async function runAgent(req: PlanRequest, emit: (e: TraceEvent) => void): Promise<void> {
   const tracer = new Tracer(emit, req.changeRequest ? `[change] ${req.changeRequest}` : req.message || JSON.stringify(req.form ?? {}));
@@ -64,6 +65,11 @@ export async function runAgent(req: PlanRequest, emit: (e: TraceEvent) => void):
   } catch (e) {
     prefs = parseHeuristic({ ...req, previous: req.previous?.prefs });
     tracer.end(pSpan, { ok: false, summary: `LLM parser unavailable (${(e as Error).message}) → heuristic parser: ${describePrefs(prefs)}` });
+  }
+  // Refinements are relative ("cheaper", "shorter"): keep the user's original budget/time unless they
+  // give a new number. (Caught in testing: the parser turned "Cheaper" into an invented lower budget.)
+  if (req.previous?.prefs && req.changeRequest && !/\d/.test(req.changeRequest)) {
+    prefs = { ...prefs, budget: req.previous.prefs.budget, hours: req.previous.prefs.hours, groupSize: req.previous.prefs.groupSize, clarifyingQuestions: [] };
   }
   ctx.prefs = prefs;
   tracer.record.prefs = prefs;
@@ -150,20 +156,29 @@ async function plannerLoop(
   let userMsg = `<saturday>${ctx.date} (${dateLabel})</saturday>\n<preferences>\n${stableStringify(prefsForModel)}\n</preferences>`;
   if (req.previous && req.changeRequest) {
     const prev = req.previous.plan.stops.map((s) => ({ placeId: s.placeId, name: s.name, start: s.start, end: s.end, cost: s.cost }));
-    userMsg += `\n<previous_plan>\n${stableStringify({ title: req.previous.plan.title, stops: prev })}\n</previous_plan>\n<change_request>\n${req.changeRequest}\n</change_request>`;
+    const { cost, minutes } = req.previous.plan.totals;
+    userMsg += `\n<previous_plan>\n${stableStringify({ title: req.previous.plan.title, stops: prev, totalCostInr: cost, totalMinutes: minutes })}\n</previous_plan>\n<change_request>\n${req.changeRequest}\n</change_request>`;
+    ctx.refinement = { request: req.changeRequest, previousCost: cost, previousMinutes: minutes, previousPlaceIds: req.previous.plan.stops.map((s) => s.placeId) };
     // Re-register previous places so the model can keep them without re-searching.
     for (const s of req.previous.plan.stops) {
-      const known = [...CURATED_PLACES, ...DINEOUT_SNAPSHOT.places].find((p) => p.id === s.placeId);
+      const known = [...CURATED_PLACES, ...DINEOUT_SNAPSHOT.places].find((p) => p.id === s.placeId) ?? osmPlaceById(s.placeId);
       if (known) ctx.places.set(known.id, known);
     }
   }
   const input: OpenAI.Responses.ResponseInputItem[] = [{ role: "user", content: userMsg }];
   const started = Date.now();
 
-  for (let turn = 1; turn <= MAX_TURNS; turn++) {
+  // A rejected finalize_plan near the cap earns up to 2 repair turns.
+  for (let turn = 1; turn <= MAX_TURNS + (ctx.finalizeAttempts > 0 ? 2 : 0); turn++) {
     if (Date.now() - started > WALL_CLOCK_MS) {
       tracer.send({ type: "message", level: "error", text: "Planner took too long — wrapping up with the fallback planner." });
       return null;
+    }
+    // Turn-budget nudge, appended at the END so the cached prefix is untouched (caught in testing:
+    // the model kept re-running estimate_cost until it hit the turn cap).
+    const left = Math.max(1, MAX_TURNS - turn + 1);
+    if (left <= 5 && !ctx.finalPlan) {
+      input.push({ role: "developer", content: `Turn budget: ${left} turn(s) left including this one. Stop exploring and call finalize_plan now with your best plan that passes validation.` });
     }
     const span = tracer.start(`planner turn ${turn}`, "llm", undefined, { "gen_ai.request.model": prompt.model, prompt: prompt.ref });
     const res = await openai.responses.create({

@@ -18,6 +18,8 @@ export interface ToolContext {
   finalizeAttempts: number;
   finalPlan: FinalPlanInput | null;
   finalCheck: Awaited<ReturnType<typeof checkPlan>> | null;
+  /** Set when the user is refining a previous plan; used to verify the change was actually made. */
+  refinement?: { request: string; previousCost: number; previousMinutes: number; previousPlaceIds: string[] };
 }
 
 export interface ToolResult { output: unknown; summary: string; cacheHit?: boolean; ok?: boolean }
@@ -348,6 +350,17 @@ async function finalizePlan(a: FinalPlanInput, ctx: ToolContext): Promise<ToolRe
   ];
   const needsTradeoff = check.warnings.some((w) => w.code === "BUDGET_SLIGHT") && !a.stops.some((s) => s.tradeoff);
   if (needsTradeoff) blocking.push({ code: "TRADEOFF_REQUIRED", message: "Plan is slightly over budget: add a tradeoff note on the stop that causes it." });
+  // Refinements must actually deliver what was asked (caught in testing: "cheaper" returned a same-cost swap).
+  const ref = ctx.refinement;
+  if (ref) {
+    const req = ref.request.toLowerCase();
+    if (/cheap|budget|less money|save|affordable/.test(req) && check.totals.cost >= ref.previousCost)
+      blocking.push({ code: "NOT_CHEAPER", message: `User asked for cheaper, but the new total ₹${check.totals.cost} is not below the previous ₹${ref.previousCost}. Swap the most expensive stop for a cheaper one.` });
+    if (/short|less time|quick|fewer/.test(req) && check.totals.minutes >= ref.previousMinutes)
+      blocking.push({ code: "NOT_SHORTER", message: `User asked for a shorter day, but it still takes ${check.totals.minutes} min (was ${ref.previousMinutes}).` });
+    const same = a.stops.map((s) => s.placeId).join() === ref.previousPlaceIds.join();
+    if (same && !/time|start|later|earlier/.test(req)) blocking.push({ code: "NO_CHANGE", message: "The plan is identical to the previous one — apply the user's change request." });
+  }
 
   if (blocking.length && ctx.finalizeAttempts < 3) {
     return { output: { accepted: false, attempt: ctx.finalizeAttempts, fix: blocking.map((v) => v.message) }, summary: `rejected (attempt ${ctx.finalizeAttempts}): ${blocking[0].message}`, ok: false };
