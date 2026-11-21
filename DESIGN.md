@@ -9,7 +9,7 @@ The product is a Saturday planner for people in Delhi NCR. Most people use it on
 | Role | Face | Use |
 |---|---|---|
 | Display | Bricolage Grotesque 600 | Page and plan titles, stop names, section headings. Warm and slightly quirky, never generic |
-| Body | Instrument Sans 400–700 | Everything else. 16px for reading copy, 14–15px for metadata, 12px minimum for labels |
+| Body | Atkinson Hyperlegible Next 400–700 | Everything else. 16px for reading copy, 14–15px for metadata, 12px minimum for labels |
 | Mono | JetBrains Mono | **Only** inside the agent console, where the content really is tool names and logs. Never used as decoration |
 
 - Headings use `text-wrap: balance`, and body text uses `pretty`. Reading copy is capped at about 65–68ch.
