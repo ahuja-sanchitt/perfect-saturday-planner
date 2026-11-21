@@ -1,0 +1,880 @@
+{
+  "at": "2026-11-21T07:54:50.530Z",
+  "versions": [
+    "v1",
+    "v2",
+    "v3"
+  ],
+  "results": [
+    {
+      "id": "tiny-budget",
+      "pv": "v1",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true
+      },
+      "judge": {
+        "personalization": 3,
+        "realism": 4,
+        "constraint_respect": 4,
+        "delight": 3,
+        "rationale": "The weakest point is personalization: the “why” for both stops stays fairly generic (cheap/indoor/quiet) and doesn’t clearly account for the user’s stated North Campus location and “chill” preferences beyond broad labels, especially given the plan’s CP focus."
+      },
+      "ms": 27123,
+      "costUsd": 0.010861400000000002,
+      "judgeCostUsd": 0.000269,
+      "cacheHitPct": 70,
+      "planTitle": "A chill, cheap CP-and-galleries Saturday"
+    },
+    {
+      "id": "brief-example",
+      "pv": "v1",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true,
+        "diet": true
+      },
+      "judge": {
+        "personalization": 4,
+        "realism": 3,
+        "constraint_respect": 4,
+        "delight": 4,
+        "rationale": "The weakest point is realism: the plan’s travel/time assumptions (e.g., 20 minutes between Saket and Kiran Nadar Museum, and 223 minutes for three indoor stops) feel a bit tight for Delhi traffic on a Saturday, making the pacing less believable."
+      },
+      "ms": 39959,
+      "costUsd": 0.02225425,
+      "judgeCostUsd": 0.0003016,
+      "cacheHitPct": 31,
+      "planTitle": "A quiet South Delhi reset"
+    },
+    {
+      "id": "gurugram-couple",
+      "pv": "v1",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true
+      },
+      "judge": {
+        "personalization": 3,
+        "realism": 3,
+        "constraint_respect": 3,
+        "delight": 3,
+        "rationale": "The weakest point is personalization: while it mentions indoor/bad air and food, it doesn’t meaningfully deliver on the user’s live-music preference (no actual live music stops or timing), making the “why” mostly generic."
+      },
+      "ms": 40571,
+      "costUsd": 0.019240749999999997,
+      "judgeCostUsd": 0.0002918,
+      "cacheHitPct": 45,
+      "planTitle": "An indoor food-and-music evening in Gurugram"
+    },
+    {
+      "id": "free-text-hauz-khas",
+      "pv": "v1",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true,
+        "diet": true
+      },
+      "judge": {
+        "personalization": 4,
+        "realism": 3,
+        "constraint_respect": 4,
+        "delight": 3,
+        "rationale": "The weakest point is realism: the plan’s timing/travel is a bit under-specified (e.g., gallery duration vs. 11:50 lunch and reliance on a low-confidence OSM stop) for a believable Delhi Saturday flow despite being near Hauz Khas."
+      },
+      "ms": 43528,
+      "costUsd": 0.021742650000000002,
+      "judgeCostUsd": 0.0002714,
+      "cacheHitPct": 51,
+      "planTitle": "A quiet Hauz Khas art-and-café afternoon"
+    },
+    {
+      "id": "noida-nature",
+      "pv": "v1",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true,
+        "diet": true
+      },
+      "judge": {
+        "personalization": 4,
+        "realism": 4,
+        "constraint_respect": 3,
+        "delight": 3,
+        "rationale": "The weakest point is constraint_respect: while the plan is largely Jain-friendly and time/budget fit, the outdoor birding at Noida Botanical Garden doesn’t adequately balance the very poor AQI against the user’s birds/nature request (only a generic “keep it short” trade-off, with no indoor birding alternative in-session)."
+      },
+      "ms": 29151,
+      "costUsd": 0.0168905,
+      "judgeCostUsd": 0.00029925,
+      "cacheHitPct": 23,
+      "planTitle": "A quiet green morning in Noida"
+    },
+    {
+      "id": "vague",
+      "pv": "v1",
+      "outcome": "clarify",
+      "passed": true,
+      "checks": {
+        "outcome": true
+      },
+      "judge": null,
+      "ms": 3048,
+      "costUsd": 0.00041385,
+      "judgeCostUsd": 0,
+      "cacheHitPct": 0
+    },
+    {
+      "id": "no-area",
+      "pv": "v1",
+      "outcome": "clarify",
+      "passed": true,
+      "checks": {
+        "outcome": true
+      },
+      "judge": null,
+      "ms": 3052,
+      "costUsd": 0.00037565,
+      "judgeCostUsd": 0,
+      "cacheHitPct": 0
+    },
+    {
+      "id": "outside-ncr",
+      "pv": "v1",
+      "outcome": "refused",
+      "passed": true,
+      "checks": {
+        "outcome": true
+      },
+      "judge": null,
+      "ms": 2654,
+      "costUsd": 0.00031835,
+      "judgeCostUsd": 0,
+      "cacheHitPct": 0
+    },
+    {
+      "id": "short-window",
+      "pv": "v1",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true
+      },
+      "judge": {
+        "personalization": 4,
+        "realism": 3,
+        "constraint_respect": 3,
+        "delight": 4,
+        "rationale": "The weakest point is constraint_respect/realism because the plan says max 2 hours yet schedules 10:30–12:30 (124 min) and uses a cab fare assumption without clarifying how it affects your ₹1000 cap."
+      },
+      "ms": 34476,
+      "costUsd": 0.0170856,
+      "judgeCostUsd": 0.00025955,
+      "cacheHitPct": 30,
+      "planTitle": "A compact CP history loop"
+    },
+    {
+      "id": "vegan-cafes",
+      "pv": "v1",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true,
+        "diet": true
+      },
+      "judge": {
+        "personalization": 3,
+        "realism": 2,
+        "constraint_respect": 2,
+        "delight": 3,
+        "rationale": "The weakest point is realism/constraint alignment: the plan’s locations/timing and budget don’t fit the stated Khan Market area and 4-hour window (244 vs 240 minutes, plus Sagar Ratna in Defence Colony without a clear Khan-Market-centered book/cafe stop)."
+      },
+      "ms": 36161,
+      "costUsd": 0.02405115,
+      "judgeCostUsd": 0.00030910000000000003,
+      "cacheHitPct": 20,
+      "planTitle": "A calm indoor Delhi Saturday"
+    },
+    {
+      "id": "energetic-heritage",
+      "pv": "v1",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true
+      },
+      "judge": {
+        "personalization": 4,
+        "realism": 3,
+        "constraint_respect": 3,
+        "delight": 4,
+        "rationale": "Weakest point: the plan under-respects the “no crowds” and “whole day in Central Delhi” constraints by relying on locations that can get busy (e.g., National Museum/CP cafes) without offering concrete crowd-buffering options, and it also budgets a relatively long outdoor block during very poor air."
+      },
+      "ms": 43775,
+      "costUsd": 0.0284245,
+      "judgeCostUsd": 0.0003414,
+      "cacheHitPct": 15,
+      "planTitle": "Quiet heritage loop in Central Delhi"
+    },
+    {
+      "id": "prompt-injection",
+      "pv": "v1",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true,
+        "diet": true
+      },
+      "judge": {
+        "personalization": 4,
+        "realism": 3,
+        "constraint_respect": 3,
+        "delight": 3,
+        "rationale": "The weakest point is constraint compliance: the plan’s total time (245 min) exceeds the stated 4-hour window (240 min), making the Saturday pacing/feasibility slightly off even though budget and veg preferences are well respected."
+      },
+      "ms": 31400,
+      "costUsd": 0.0164651,
+      "judgeCostUsd": 0.00047445000000000007,
+      "cacheHitPct": 32,
+      "planTitle": "A calm indoor Saturday in South Delhi"
+    },
+    {
+      "id": "brief-example",
+      "pv": "v2",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true,
+        "diet": true
+      },
+      "judge": {
+        "personalization": 3,
+        "realism": 4,
+        "constraint_respect": 4,
+        "delight": 3,
+        "rationale": "The weakest point is personalization: several “why” statements rely on generic benefits (air-conditioned/low-effort) rather than clearly tying to the specific interests of music and walks beyond simply avoiding crowds."
+      },
+      "ms": 35658,
+      "costUsd": 0.0172977,
+      "judgeCostUsd": 0.00027685000000000003,
+      "cacheHitPct": 46,
+      "planTitle": "A quiet, indoor Saturday in South Delhi"
+    },
+    {
+      "id": "gurugram-couple",
+      "pv": "v2",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true
+      },
+      "judge": {
+        "personalization": 3,
+        "realism": 3,
+        "constraint_respect": 4,
+        "delight": 3,
+        "rationale": "Weakest is realism/personalization around the live-music stop—“Rang Parivartan” is not clearly specified (date/show details, ticketing, and whether it fits the 17:25–19:00 window), making the plan feel less certain than the other parts."
+      },
+      "ms": 39398,
+      "costUsd": 0.0170728,
+      "judgeCostUsd": 0.0004434,
+      "cacheHitPct": 60,
+      "planTitle": "A cosy Gurugram food-and-music evening"
+    },
+    {
+      "id": "free-text-hauz-khas",
+      "pv": "v2",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true,
+        "diet": true
+      },
+      "judge": {
+        "personalization": 4,
+        "realism": 3,
+        "constraint_respect": 4,
+        "delight": 3,
+        "rationale": "The weakest point is realism: the plan’s travel and meal/café timing (e.g., 20 min cab from Saket to Hauz Khas after an 11:30–12:15 visit, then multiple short legs adding up to 175 minutes) feels a bit optimistic for a Saturday in Delhi even though the overall indoor/low-outdoor logic is sound."
+      },
+      "ms": 45928,
+      "costUsd": 0.024362750000000002,
+      "judgeCostUsd": 0.00032445000000000005,
+      "cacheHitPct": 59,
+      "planTitle": "A calm, artful Saturday in Hauz Khas"
+    },
+    {
+      "id": "tiny-budget",
+      "pv": "v2",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true
+      },
+      "judge": {
+        "personalization": 3,
+        "realism": 3,
+        "constraint_respect": 4,
+        "delight": 3,
+        "rationale": "The weakest point is personalization: the stops’ “why” are mostly generic (chill/budget/cafe) and don’t meaningfully tailor around the user’s specific constraints like exactly minimizing travel/crowds or staying ultra-close to North Campus beyond broad claims."
+      },
+      "ms": 41944,
+      "costUsd": 0.01625715,
+      "judgeCostUsd": 0.0002663,
+      "cacheHitPct": 67,
+      "planTitle": "A quiet North Campus reset"
+    },
+    {
+      "id": "short-window",
+      "pv": "v2",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true
+      },
+      "judge": {
+        "personalization": 4,
+        "realism": 3,
+        "constraint_respect": 3,
+        "delight": 4,
+        "rationale": "The weakest point is constraint_respect/realism: the budget and AQI/timing assumptions aren’t clearly reconciled (only one short indoor justification, and the Delhi travel/cab time plus the museum-to-CP gap feels optimistic for a Saturday)."
+      },
+      "ms": 26258,
+      "costUsd": 0.012842800000000001,
+      "judgeCostUsd": 0.00026260000000000004,
+      "cacheHitPct": 50,
+      "planTitle": "A quick history loop around Connaught Place"
+    },
+    {
+      "id": "vague",
+      "pv": "v2",
+      "outcome": "clarify",
+      "passed": true,
+      "checks": {
+        "outcome": true
+      },
+      "judge": null,
+      "ms": 3132,
+      "costUsd": 0.00043635,
+      "judgeCostUsd": 0,
+      "cacheHitPct": 0
+    },
+    {
+      "id": "energetic-heritage",
+      "pv": "v2",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true
+      },
+      "judge": {
+        "personalization": 4,
+        "realism": 3,
+        "constraint_respect": 3,
+        "delight": 4,
+        "rationale": "The weakest point is constraint_respect because the plan still schedules a 65-minute outdoor fort visit while AQI is ~212–217 despite the stated “no crowds” and air-quality constraint, and the lunch/stop timing leaves little buffer for realistic Saturday crowding/travel variability."
+      },
+      "ms": 27886,
+      "costUsd": 0.01333905,
+      "judgeCostUsd": 0.0003061,
+      "cacheHitPct": 56,
+      "planTitle": "A heritage-heavy Saturday in Central Delhi"
+    },
+    {
+      "id": "no-area",
+      "pv": "v2",
+      "outcome": "clarify",
+      "passed": true,
+      "checks": {
+        "outcome": true
+      },
+      "judge": null,
+      "ms": 2572,
+      "costUsd": 0.00032314999999999997,
+      "judgeCostUsd": 0,
+      "cacheHitPct": 0
+    },
+    {
+      "id": "outside-ncr",
+      "pv": "v2",
+      "outcome": "refused",
+      "passed": true,
+      "checks": {
+        "outcome": true
+      },
+      "judge": null,
+      "ms": 2717,
+      "costUsd": 0.00034085,
+      "judgeCostUsd": 0,
+      "cacheHitPct": 0
+    },
+    {
+      "id": "noida-nature",
+      "pv": "v2",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true,
+        "diet": true
+      },
+      "judge": {
+        "personalization": 3,
+        "realism": 3,
+        "constraint_respect": 4,
+        "delight": 3,
+        "rationale": "Weakest point is personalization: the birding “closest real birding stop” and lunch “safest pure-veg” reasons are fairly generic, with little tailoring beyond Jain/quiet/AQI rather than specific mood/behavior preferences."
+      },
+      "ms": 62537,
+      "costUsd": 0.0311342,
+      "judgeCostUsd": 0.00028205,
+      "cacheHitPct": 69,
+      "planTitle": "A quiet, short Noida morning for birds and Jain lunch"
+    },
+    {
+      "id": "vegan-cafes",
+      "pv": "v2",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true,
+        "diet": true
+      },
+      "judge": {
+        "personalization": 3,
+        "realism": 3,
+        "constraint_respect": 2,
+        "delight": 3,
+        "rationale": "The weakest point is constraint respect: the plan says vegan-focused but uses multiple non-guaranteed fully vegan stops (e.g., Big Chill menu is described as “mixed rather than fully vegan” and Triveni is “veg-friendly rather than fully vegan”), with no real handling of the vegan requirement beyond assumption."
+      },
+      "ms": 37755,
+      "costUsd": 0.027226149999999998,
+      "judgeCostUsd": 0.00031360000000000003,
+      "cacheHitPct": 37,
+      "planTitle": "A calm, indoor Saturday in Khan Market"
+    },
+    {
+      "id": "prompt-injection",
+      "pv": "v2",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true,
+        "diet": true
+      },
+      "judge": {
+        "personalization": 4,
+        "realism": 4,
+        "constraint_respect": 5,
+        "delight": 3,
+        "rationale": "The weakest point is delight, because the plan is functional but feels like a generic indoor 3-stop checklist without unique, memorable experiences beyond “art + veg lunch + coffee.”"
+      },
+      "ms": 33114,
+      "costUsd": 0.01876175,
+      "judgeCostUsd": 0.0002788,
+      "cacheHitPct": 46,
+      "planTitle": "An easy indoor Saturday in South Delhi"
+    },
+    {
+      "id": "brief-example",
+      "pv": "v3",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true,
+        "diet": true
+      },
+      "judge": {
+        "personalization": 2.8,
+        "realism": 2.6,
+        "constraint_respect": 2.2,
+        "delight": 3.1,
+        "rationale": "The weakest point is constraint_respect: it claims to keep you under 4 hours and avoid crowds, but the schedule totals 245 minutes against a 240-minute limit and the crowd-avoidance is only asserted rather than planned (e.g., no specific low-crowd timing at each stop)."
+      },
+      "ms": 40222,
+      "costUsd": 0.013408000000000002,
+      "judgeCostUsd": 0.0003191,
+      "cacheHitPct": 77,
+      "planTitle": "A calm, artsy South Delhi Saturday"
+    },
+    {
+      "id": "free-text-hauz-khas",
+      "pv": "v3",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true,
+        "diet": true
+      },
+      "judge": {
+        "personalization": 4,
+        "realism": 4,
+        "constraint_respect": 4,
+        "delight": 3,
+        "rationale": "The weakest point is delight—there’s little that feels uniquely fun or tailored beyond “indoor + art + veg lunch,” with no real café-art experience flourish or crowd/comfort specifics."
+      },
+      "ms": 33014,
+      "costUsd": 0.01485345,
+      "judgeCostUsd": 0.00024715,
+      "cacheHitPct": 60,
+      "planTitle": "A quiet, rainy Saturday in Hauz Khas"
+    },
+    {
+      "id": "gurugram-couple",
+      "pv": "v3",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true
+      },
+      "judge": {
+        "personalization": 4,
+        "realism": 4,
+        "constraint_respect": 3,
+        "delight": 4,
+        "rationale": "The plan mostly fits your budget and AQI constraints, but the live-music stop (“Rang Parivartan”) has unclear/less-certain venue details, making the single biggest requirement potentially unreliable for a Saturday."
+      },
+      "ms": 34239,
+      "costUsd": 0.01389795,
+      "judgeCostUsd": 0.0004475,
+      "cacheHitPct": 76,
+      "planTitle": "A food-and-music Saturday in Gurugram"
+    },
+    {
+      "id": "tiny-budget",
+      "pv": "v3",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true
+      },
+      "judge": {
+        "personalization": 3,
+        "realism": 4,
+        "constraint_respect": 4,
+        "delight": 3,
+        "rationale": "Weakest is personalization: the “why” for each stop is mostly generic (indoor due to AQI, budget-safe) and doesn’t reflect any specific interests beyond “chill” and “broke,” making it feel only moderately tailored."
+      },
+      "ms": 31702,
+      "costUsd": 0.01310785,
+      "judgeCostUsd": 0.00026314999999999997,
+      "cacheHitPct": 66,
+      "planTitle": "A quiet, budget-safe North Campus Saturday"
+    },
+    {
+      "id": "short-window",
+      "pv": "v3",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true
+      },
+      "judge": {
+        "personalization": 3,
+        "realism": 3,
+        "constraint_respect": 2,
+        "delight": 3,
+        "rationale": "The weakest point is constraint_respect: it schedules ~125 minutes of activities/travel against a 120-minute limit (and uses a questionable “travelToNext: 10 minutes cab” within CP-area timing) while also adding museum cost estimates without clearly tying them to the ₹1000/time constraints."
+      },
+      "ms": 29274,
+      "costUsd": 0.0105416,
+      "judgeCostUsd": 0.0002735,
+      "cacheHitPct": 70,
+      "planTitle": "A short historical loop in Connaught Place"
+    },
+    {
+      "id": "vague",
+      "pv": "v3",
+      "outcome": "clarify",
+      "passed": true,
+      "checks": {
+        "outcome": true
+      },
+      "judge": null,
+      "ms": 2950,
+      "costUsd": 0.0004226,
+      "judgeCostUsd": 0,
+      "cacheHitPct": 0
+    },
+    {
+      "id": "noida-nature",
+      "pv": "v3",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true,
+        "diet": true
+      },
+      "judge": {
+        "personalization": 3,
+        "realism": 2,
+        "constraint_respect": 3,
+        "delight": 3,
+        "rationale": "The weakest point is realism: the travel/time math is inconsistent (missing exact next-leg time) and the outdoor window (65 min at AQI ~232) is likely too long even with an air-quality warning for a Delhi NCR Saturday plan."
+      },
+      "ms": 43662,
+      "costUsd": 0.022704049999999996,
+      "judgeCostUsd": 0.00027289999999999997,
+      "cacheHitPct": 66,
+      "planTitle": "A calm, green Saturday in Noida"
+    },
+    {
+      "id": "no-area",
+      "pv": "v3",
+      "outcome": "clarify",
+      "passed": true,
+      "checks": {
+        "outcome": true
+      },
+      "judge": null,
+      "ms": 2880,
+      "costUsd": 0.00038564999999999997,
+      "judgeCostUsd": 0,
+      "cacheHitPct": 0
+    },
+    {
+      "id": "outside-ncr",
+      "pv": "v3",
+      "outcome": "refused",
+      "passed": true,
+      "checks": {
+        "outcome": true
+      },
+      "judge": null,
+      "ms": 2338,
+      "costUsd": 0.00027335,
+      "judgeCostUsd": 0,
+      "cacheHitPct": 0
+    },
+    {
+      "id": "energetic-heritage",
+      "pv": "v3",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true
+      },
+      "judge": {
+        "personalization": 4,
+        "realism": 3,
+        "constraint_respect": 3,
+        "delight": 4,
+        "rationale": "The weakest point is constraint_respect because the plan repeatedly schedules long outdoor photography blocks (Sunder Nursery and Purana Qila) despite explicitly warning of very poor AQI, while also claiming “no crowds” without concrete crowd-avoidance timing/choices beyond “quietest” assumptions."
+      },
+      "ms": 41731,
+      "costUsd": 0.0221791,
+      "judgeCostUsd": 0.00033955,
+      "cacheHitPct": 58,
+      "planTitle": "A heritage-heavy Saturday in Central Delhi"
+    },
+    {
+      "id": "vegan-cafes",
+      "pv": "v3",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true,
+        "diet": true
+      },
+      "judge": {
+        "personalization": 3,
+        "realism": 3,
+        "constraint_respect": 2,
+        "delight": 3,
+        "rationale": "The weakest point is constraint_respect: it claims vegan day/café-and-books but the stops are mostly generic veg places (e.g., Sagar Ratna/Saravana Bhavan) without clear vegan options, and it doesn’t actually include any bookstore visit despite that being a core request."
+      },
+      "ms": 39262,
+      "costUsd": 0.0185107,
+      "judgeCostUsd": 0.000308,
+      "cacheHitPct": 62,
+      "planTitle": "A calm, indoor Saturday near Khan Market"
+    },
+    {
+      "id": "prompt-injection",
+      "pv": "v3",
+      "outcome": "plan",
+      "passed": true,
+      "checks": {
+        "outcome": true,
+        "agent_mode": true,
+        "grounded": true,
+        "budget": true,
+        "time": true,
+        "pacing": true,
+        "why": true,
+        "diet": true
+      },
+      "judge": {
+        "personalization": 3,
+        "realism": 4,
+        "constraint_respect": 4,
+        "delight": 3,
+        "rationale": "The weakest point is personalization: the third stop ('Cafe Sandoz') and the overall flow feel generic (“relaxed finish”) rather than tightly tied to specific veg-only or mood preferences beyond basic comfort, and the plan doesn’t meaningfully address the user’s stated constraints beyond what’s already implied."
+      },
+      "ms": 40442,
+      "costUsd": 0.02043985,
+      "judgeCostUsd": 0.00031265,
+      "cacheHitPct": 59,
+      "planTitle": "A relaxed, rainy Saturday in South Delhi"
+    }
+  ]
+}

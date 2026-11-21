@@ -2,7 +2,7 @@
 
 An AI agent that plans a realistic, personalised Saturday in Delhi NCR. You describe your mood, budget, time, interests and constraints, and it returns a timed itinerary with a "why this fits you" line for each stop. A live **agent console** streams every LLM call, tool call, cache hit, validation failure and retry as it happens.
 
-**Live:** _<vercel url>_ · **Runs dashboard:** `/runs`
+**Live:** https://perfect-saturday-planner-tau.vercel.app · **Runs dashboard:** `/runs`
 
 ---
 
@@ -70,7 +70,19 @@ POST /api/plan (Server-Sent Events)
 
 ### Eval results
 
-_Run `npm run eval -- --pv v1,v2` and paste the table here._
+`npm run eval -- --pv v1,v2,v3`: 12 cases per version, gpt-5.4-mini planner, gpt-5.4-nano judge (21 Nov 2026):
+
+| planner | deterministic pass | judge avg (1–5) | personalization | realism | constraints | delight | avg cost / run | avg prompt-cache hit | avg latency |
+|---|---|---|---|---|---|---|---|---|---|
+| v1 | 12/12 | 3.33 | 3.67 | 3.11 | 3.22 | 3.33 | $0.0148 | 26% | 27.9s |
+| v2 | 12/12 | 3.39 | 3.44 | 3.22 | 3.67 | 3.22 | $0.0149 | 41% | 29.9s |
+| v3 | 12/12 | 3.21 | 3.31 | 3.29 | 3.02 | 3.23 | $0.0126 | 50% | 28.5s |
+
+How I read it:
+- **Hard constraints hold on every version** (budget, time, diet, pacing, grounded places, refusal and clarification paths, prompt injection). The server-side validator does that work, not the prompt.
+- **v3 is about 15% cheaper with the best cache hit rate**, because it makes fewer exploratory tool calls. Cache hit % is averaged over all cases, including clarify and refuse runs, which make no planner calls.
+- **Judge differences are within noise:** one sample per case, 9 judged plans per version. v3's lower "constraints" score is the next thing to investigate, using multiple samples per case and a stronger judge, before promoting further.
+- v3 stays active because it carries the refinement fix ("cheaper" must actually cost less). This eval set doesn't cover multi-turn refinement yet, which is a known gap.
 
 ---
 
