@@ -1,26 +1,86 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --subtle: #f1ece3;
+  --ink: #1c1b19;
+  --muted: #6b655b;
+  --line: #e8e4dc;
+  --line-strong: #d9d3c7;
+  --accent: #b4410f;
+  --accent-ink: #ffffff;
+  --good: #2f6b3f;
+  --warn: #9a4a0b;
+  --bad: #b42318;
+  /* console is always dark */
+  --c-bg: #14161a;
+  --c-line: #262a31;
+  --c-ink: #d6d9de;
+  --c-muted: #9aa1ac;
+  --c-good: #6ee7a0;
+  --c-bad: #f59e8b;
+  --c-info: #93c5fd;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg: #161513;
+    --surface: #1f1d1a;
+    --subtle: #2a2723;
+    --ink: #f1ede6;
+    --muted: #b0a99d;
+    --line: #2f2c27;
+    --line-strong: #3d3933;
+    --accent: #e0662f;
+    --accent-ink: #1c1b19;
+    --good: #7bcf93;
+    --warn: #f0a560;
+    --bad: #f28b82;
+    --c-bg: #0e1013;
   }
 }
 
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-subtle: var(--subtle);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-good: var(--good);
+  --color-warn: var(--warn);
+  --color-bad: var(--bad);
+  --color-c-bg: var(--c-bg);
+  --color-c-line: var(--c-line);
+  --color-c-ink: var(--c-ink);
+  --color-c-muted: var(--c-muted);
+  --color-c-good: var(--c-good);
+  --color-c-bad: var(--c-bad);
+  --color-c-info: var(--c-info);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains);
+}
+
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+body {
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.pulse-dot { animation: pulse-dot 1.2s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-dot { animation: none; }
 }
