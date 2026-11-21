@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Console } from "./Console";
-import { PlanView, RefineBox } from "./PlanView";
+import { PlanFooterActions, PlanView, RefineBox } from "./PlanView";
 import { PanelIcon, Sparkle, SunIcon } from "./icons";
 import { ThinkingBanner, ThinkingCard } from "./Thinking";
 import { usePlanner, type FormInput } from "./usePlanner";
@@ -107,6 +107,20 @@ export function Planner() {
     }
   };
 
+  // Wipe the plan, trace and inputs and go back to a blank start.
+  const startOver = () => {
+    p.reset();
+    setText("");
+    setUseForm(false);
+    setForm({ area: "", budget: 2000, hours: 4, mood: "", interests: [], constraints: [] });
+    setAnswers({});
+    setEmptyHint(false);
+    setInputOpen(false);
+    setTab("plan");
+    if (window.location.search) window.history.replaceState(null, "", window.location.pathname);
+    requestAnimationFrame(() => document.getElementById("describe")?.focus());
+  };
+
   const pick = (q: string, a: string) => {
     const next = { ...answers, [q]: a };
     setAnswers(next);
@@ -156,9 +170,14 @@ export function Planner() {
                 <span className="font-bold text-ink">Your request: </span>
                 {requestSummary(text, useForm ? form : undefined, p.prefs)}
               </p>
-              <button type="button" onClick={() => setInputOpen(true)} disabled={running} className="h-10 flex-none rounded-xl border border-line-strong px-3.5 text-base font-bold hover:border-accent disabled:opacity-50">
-                New request
-              </button>
+              <span className="flex flex-none gap-2">
+                <button type="button" onClick={() => setInputOpen(true)} disabled={running} className="hidden h-10 rounded-xl border border-line-strong px-3.5 text-base font-bold hover:border-accent disabled:opacity-50 sm:block">
+                  Edit request
+                </button>
+                <button type="button" onClick={startOver} className="h-10 rounded-xl border-2 border-night px-3.5 text-base font-bold hover:bg-night hover:text-marquee">
+                  Start over
+                </button>
+              </span>
             </section>
           ) : (
           <section className="space-y-3 border-b border-line px-4 py-6 sm:px-8">
@@ -257,6 +276,9 @@ export function Planner() {
             {p.plan && (
               <div key={p.plan.title + p.plan.stops.map((x) => x.placeId).join()} className={`transition-opacity duration-300 ${running ? "pointer-events-none opacity-55" : ""}`} aria-busy={running}>
                 <PlanView plan={p.plan} />
+                <div className="mt-6">
+                  <PlanFooterActions runId={p.runId} onStartOver={startOver} disabled={false} />
+                </div>
               </div>
             )}
           </section>
@@ -265,7 +287,7 @@ export function Planner() {
         {/* Refine box — pinned to the bottom after the first plan */}
         {p.plan && (
           <footer className={`border-t border-line bg-surface px-4 py-3 sm:px-8 ${tab === "trace" ? "hidden lg:block" : ""}`}>
-            <RefineBox onSubmit={p.refine} disabled={running} runId={p.runId} />
+            <RefineBox onSubmit={p.refine} disabled={running} />
           </footer>
         )}
 

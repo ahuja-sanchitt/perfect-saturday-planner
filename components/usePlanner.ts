@@ -192,5 +192,25 @@ export function usePlanner() {
     setNotice({ text: "This is a replay of a recorded production run, shown instantly. Plan your own Saturday to run the live agent.", level: "info" });
   }, [handle]);
 
-  return { status, trace, plan, prefs, stats, runId, promptVersions, questions, notice, changes, startedAt, runAt, replaying, start, answer, refine, replay };
+  /** Start from scratch: cancel any in-flight run and clear the plan, trace and conversation. */
+  const reset = useCallback(() => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    lastReq.current = null;
+    setStatus("idle");
+    setTrace([]);
+    setPlan(null);
+    setPrefs(null);
+    setStats(null);
+    setRunId(null);
+    setPromptVersions(null);
+    setQuestions([]);
+    setNotice(null);
+    setChanges([]);
+    setStartedAt(null);
+    setRunAt(null);
+    setReplaying(false);
+  }, []);
+
+  return { status, trace, plan, prefs, stats, runId, promptVersions, questions, notice, changes, startedAt, runAt, replaying, start, answer, refine, replay, reset };
 }

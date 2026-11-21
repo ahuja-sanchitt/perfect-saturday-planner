@@ -141,9 +141,8 @@ export function PlanView({ plan }: { plan: Plan }) {
 
 const TWEAKS = ["Cheaper", "More outdoor", "Add live music", "Swap lunch spot", "Shorter day"];
 
-export function RefineBox({ onSubmit, disabled, runId }: { onSubmit: (text: string) => void; disabled: boolean; runId: string | null }) {
+export function RefineBox({ onSubmit, disabled }: { onSubmit: (text: string) => void; disabled: boolean }) {
   const [text, setText] = useState("");
-  const [rated, setRated] = useState<"up" | "down" | null>(null);
   const [hint, setHint] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const submit = (t: string) => {
@@ -157,11 +156,6 @@ export function RefineBox({ onSubmit, disabled, runId }: { onSubmit: (text: stri
     onSubmit(t.trim());
     setText("");
     setHint(false);
-    setRated(null);
-  };
-  const rate = async (rating: "up" | "down") => {
-    setRated(rating);
-    if (runId) await fetch("/api/feedback", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ runId, rating }) }).catch(() => {});
   };
   return (
     <div className="space-y-3">
@@ -199,23 +193,43 @@ export function RefineBox({ onSubmit, disabled, runId }: { onSubmit: (text: stri
           Type what to change first, or tap one of the quick changes below.
         </p>
       )}
-      <div className="flex items-center gap-2">
-        <div className="-my-1 flex min-w-0 flex-1 gap-2 overflow-x-auto py-1 sm:flex-wrap" aria-label="Quick changes">
-          {TWEAKS.map((t) => (
-            <button key={t} type="button" disabled={disabled} onClick={() => submit(t)} className="h-9 flex-none rounded-xl border border-line-strong bg-surface px-3.5 text-base whitespace-nowrap hover:border-accent disabled:opacity-50">
-              {t}
-            </button>
-          ))}
-        </div>
-        <span className="flex flex-none gap-2">
-          <button type="button" aria-label="Good plan" aria-pressed={rated === "up"} onClick={() => rate("up")} className={`flex h-11 w-11 items-center justify-center rounded-xl border ${rated === "up" ? "border-good text-good" : "border-line-strong text-muted"}`}>
+      {/* Quick changes get the full width; nothing is pinned on top of them */}
+      <div className="-my-1 flex gap-2 overflow-x-auto py-1 sm:flex-wrap" aria-label="Quick changes">
+        {TWEAKS.map((t) => (
+          <button key={t} type="button" disabled={disabled} onClick={() => submit(t)} className="h-9 flex-none rounded-xl border border-line-strong bg-surface px-3.5 text-base whitespace-nowrap hover:border-accent disabled:opacity-50">
+            {t}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** End-of-plan row: rate the plan, or wipe everything and start from scratch. Scrolls with the plan. */
+export function PlanFooterActions({ runId, onStartOver, disabled }: { runId: string | null; onStartOver: () => void; disabled: boolean }) {
+  const [rated, setRated] = useState<"up" | "down" | null>(null);
+  const rate = async (rating: "up" | "down") => {
+    setRated(rating);
+    if (runId) await fetch("/api/feedback", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ runId, rating }) }).catch(() => {});
+  };
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-subtle px-4 py-3">
+      <div className="flex items-center gap-3">
+        <span className="text-base font-bold" id="rate-label">
+          {rated ? "Thanks for the feedback" : "Was this plan useful?"}
+        </span>
+        <span className="flex gap-2" role="group" aria-labelledby="rate-label">
+          <button type="button" aria-label="Good plan" aria-pressed={rated === "up"} onClick={() => rate("up")} className={`flex h-11 w-11 items-center justify-center rounded-xl border bg-surface ${rated === "up" ? "border-good text-good" : "border-line-strong text-muted"}`}>
             <ThumbUpIcon />
           </button>
-          <button type="button" aria-label="Bad plan" aria-pressed={rated === "down"} onClick={() => rate("down")} className={`flex h-11 w-11 items-center justify-center rounded-xl border ${rated === "down" ? "border-bad text-bad" : "border-line-strong text-muted"}`}>
+          <button type="button" aria-label="Bad plan" aria-pressed={rated === "down"} onClick={() => rate("down")} className={`flex h-11 w-11 items-center justify-center rounded-xl border bg-surface ${rated === "down" ? "border-bad text-bad" : "border-line-strong text-muted"}`}>
             <ThumbDownIcon />
           </button>
         </span>
       </div>
+      <button type="button" onClick={onStartOver} disabled={disabled} className="h-11 rounded-xl border-2 border-night px-4 text-base font-bold hover:bg-night hover:text-marquee disabled:opacity-50">
+        Start over
+      </button>
     </div>
   );
 }
