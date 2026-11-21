@@ -50,6 +50,7 @@ export function usePlanner() {
   const [questions, setQuestions] = useState<{ question: string; options: string[] }[]>([]);
   const [notice, setNotice] = useState<{ text: string; level: "info" | "error" } | null>(null);
   const [changes, setChanges] = useState<string[]>([]);
+  const [startedAt, setStartedAt] = useState<number | null>(null);
   const lastReq = useRef<Request | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -107,6 +108,7 @@ export function usePlanner() {
       abortRef.current = ac;
       lastReq.current = req;
       setStatus("running");
+      setStartedAt(Date.now());
       setQuestions([]);
       setNotice(null);
       setStats(null);
@@ -175,5 +177,5 @@ export function usePlanner() {
     [send, plan, prefs],
   );
 
-  return { status, trace, plan, prefs, stats, runId, promptVersions, questions, notice, changes, start, answer, refine };
+  return { status, trace, plan, prefs, stats, runId, promptVersions, questions, notice, changes, startedAt, start, answer, refine };
 }

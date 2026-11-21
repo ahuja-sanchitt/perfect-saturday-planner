@@ -2,6 +2,7 @@
 import { useState, useSyncExternalStore } from "react";
 import { Console } from "./Console";
 import { PlanView, RefineBox } from "./PlanView";
+import { ThinkingBanner, ThinkingCard } from "./Thinking";
 import { usePlanner, type FormInput } from "./usePlanner";
 
 // Console open/closed preference, persisted per viewer (falls back to open if storage is blocked).
@@ -154,7 +155,8 @@ export function Planner() {
           </section>
 
           {/* Output */}
-          <section className="space-y-5 px-4 py-5 sm:px-8">
+          <section className="space-y-5 px-4 pb-5 sm:px-8">
+            {running && p.plan ? <ThinkingBanner trace={p.trace} startedAt={p.startedAt} change={p.changes[p.changes.length - 1] ?? null} /> : <div className="h-0" />}
             {p.status === "idle" && !p.plan && <EmptyState />}
 
             {p.notice && (
@@ -181,7 +183,7 @@ export function Planner() {
               </div>
             )}
 
-            {running && !p.plan && <Progress trace={p.trace} onShowTrace={() => setTab("trace")} />}
+            {running && !p.plan && <ThinkingCard trace={p.trace} startedAt={p.startedAt} onShowTrace={() => setTab("trace")} />}
 
             {p.changes.length > 0 && (
               <div className="flex flex-wrap gap-2 text-xs text-muted">
@@ -193,7 +195,7 @@ export function Planner() {
             )}
 
             {p.plan && (
-              <div className={running ? "opacity-50 transition-opacity" : ""}>
+              <div className={running ? "updating pointer-events-none" : ""} aria-busy={running}>
                 <PlanView plan={p.plan} />
               </div>
             )}
@@ -274,21 +276,6 @@ function EmptyState() {
         <li>Every plan is checked against your budget, time, diet and crowd preferences before you see it.</li>
         <li>Open the agent console to watch each tool call, cache hit and retry live.</li>
       </ul>
-    </div>
-  );
-}
-
-function Progress({ trace, onShowTrace }: { trace: ReturnType<typeof usePlanner>["trace"]; onShowTrace: () => void }) {
-  const steps = trace.filter((t) => t.kind === "step");
-  const last = steps[steps.length - 1];
-  const label = last && last.kind === "step" ? (last.step.running ? `Working: ${last.step.name.replace(/_/g, " ")}…` : last.step.summary) : "Starting…";
-  return (
-    <div className="flex items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3 text-sm">
-      <span className="pulse-dot h-2.5 w-2.5 flex-none rounded-full bg-accent" aria-hidden="true" />
-      <span className="min-w-0 flex-1 truncate">{label}</span>
-      <button type="button" onClick={onShowTrace} className="flex-none text-[13px] font-medium text-accent lg:hidden">
-        View trace
-      </button>
     </div>
   );
 }
