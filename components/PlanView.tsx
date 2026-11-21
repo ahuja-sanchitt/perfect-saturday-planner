@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { Plan } from "@/lib/types";
 import { ArrowRightIcon, ThumbDownIcon, ThumbUpIcon } from "./icons";
 
@@ -29,52 +29,69 @@ const mapUrl = (name: string, lat: number, lng: number) => `https://www.google.c
 export function PlanView({ plan }: { plan: Plan }) {
   const overBudget = plan.totals.budget !== null && plan.totals.cost > plan.totals.budget;
   const overTime = plan.totals.availableMinutes !== null && plan.totals.minutes > plan.totals.availableMinutes;
+  const allMet = !overBudget && !overTime && !plan.warnings.length;
   return (
     <div className="space-y-6">
-      <header className="space-y-2">
-        <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
-          <h2 className="font-display text-2xl font-semibold tracking-[-0.02em] text-balance">{plan.title}</h2>
-          {plan.weather && (
-            <span className="flex-none text-sm text-muted tabular-nums">
-              {[plan.weather.tempMax !== null ? `${Math.round(plan.weather.tempMax)}°C` : null, plan.weather.aqi !== null ? `AQI ${plan.weather.aqi}` : null].filter(Boolean).join(" · ")}
-            </span>
-          )}
+      {/* The bill: the plan title painted on a saffron field (paints in when a plan lands) */}
+      <header className="bill rounded-2xl px-5 py-5 text-saffron-ink sm:px-7 sm:py-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-8">
+          <div className="min-w-0 space-y-2">
+            <h2 className="font-display text-[34px] leading-[1.05] sm:text-[44px]">{plan.title}</h2>
+            <p className="max-w-[62ch] text-base text-saffron-muted">{plan.summary}</p>
+          </div>
+          <dl className="grid flex-none grid-cols-3 gap-x-5 gap-y-0.5 text-left tabular-nums lg:text-right">
+            <dt className="text-sm text-saffron-muted">Spend</dt>
+            <dt className="text-sm text-saffron-muted">Time</dt>
+            <dt className="text-sm text-saffron-muted">Air</dt>
+            <dd className={`text-lg font-bold ${overBudget ? "underline decoration-2 underline-offset-4" : ""}`}>
+              {inr(plan.totals.cost)}
+              {plan.totals.budget ? <span className="block text-sm font-normal text-saffron-muted">of {inr(plan.totals.budget)}</span> : null}
+            </dd>
+            <dd className={`text-lg font-bold ${overTime ? "underline decoration-2 underline-offset-4" : ""}`}>
+              {dur(plan.totals.minutes)}
+              {plan.totals.availableMinutes ? <span className="block text-sm font-normal text-saffron-muted">of {dur(plan.totals.availableMinutes)}</span> : null}
+            </dd>
+            <dd className="text-lg font-bold">
+              {plan.weather?.aqi != null ? `AQI ${plan.weather.aqi}` : "n/a"}
+              {plan.weather?.tempMax != null ? <span className="block text-sm font-normal text-saffron-muted">{Math.round(plan.weather.tempMax)}°C</span> : null}
+            </dd>
+          </dl>
         </div>
-        <p className="max-w-[68ch] text-base text-ink/85">{plan.summary}</p>
       </header>
 
       {plan.mode === "fallback" && (
-        <p className="rounded-xl bg-subtle px-4 py-3 text-sm text-muted">
+        <p className="rounded-xl bg-subtle px-4 py-3 text-[15px] text-muted">
           The AI planner wasn&apos;t available, so a rule-based planner built this from the same real places and checks. It&apos;s less personal.
         </p>
       )}
 
+      {/* Showtimes: ink tiles with lettered times, joined by the travel line */}
       <ol>
         {plan.stops.map((s, i) => (
           <li key={`${s.placeId}-${i}`}>
-            <div className="grid grid-cols-[56px_minmax(0,1fr)] gap-3 sm:grid-cols-[68px_minmax(0,1fr)_auto] sm:gap-5">
-              <div className="pt-4 text-[15px] font-semibold tabular-nums">
-                {s.start}
-                <span className="block text-sm font-normal text-muted">{s.end}</span>
+            <div className="grid grid-cols-[76px_minmax(0,1fr)] gap-3 sm:grid-cols-[104px_minmax(0,1fr)_auto] sm:gap-5">
+              <div className="flex h-[76px] flex-col items-center justify-center rounded-xl bg-night text-marquee sm:h-[88px]">
+                <span className="font-display text-[26px] leading-none tabular-nums sm:text-[30px]">{s.start}</span>
+                <span className="mt-1 text-[13px] text-night-ink/80 tabular-nums">to {s.end}</span>
               </div>
-              <article className="flex flex-col gap-2 rounded-2xl border border-line bg-surface px-5 py-4">
+              <article className="group flex flex-col gap-2 rounded-2xl border border-line bg-surface px-5 py-4 transition-colors focus-within:border-accent hover:border-line-strong">
                 <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="font-display text-lg font-semibold leading-snug">
-                    <a href={mapUrl(`${s.name} ${s.area}`, s.lat, s.lng)} target="_blank" rel="noreferrer" className="underline-offset-4 hover:underline">
+                  <h3 className="font-display text-[22px] leading-tight">
+                    <a href={mapUrl(`${s.name} ${s.area}`, s.lat, s.lng)} target="_blank" rel="noreferrer" className="hover:underline">
                       {s.name}
                     </a>
-                    <span className="ml-2 font-sans text-sm font-normal text-muted">{s.area}</span>
+                    <span className="ml-2 font-sans text-sm text-muted">{s.area}</span>
                   </h3>
-                  <span className="flex-none text-[15px] font-semibold tabular-nums sm:hidden">{s.cost ? inr(s.cost) : "Free"}</span>
+                  <span className="flex-none text-base font-bold tabular-nums sm:hidden">{s.cost ? inr(s.cost) : "Free"}</span>
                 </div>
                 <p className="text-base">{s.activity}</p>
-                <p className="text-[15px] text-good">
-                  <span className="font-semibold">Why it fits: </span>
+                <p className="text-base text-good">
+                  <span className="font-bold">Why it fits: </span>
                   {s.why}
                 </p>
                 {s.tradeoff && (
-                  <p className="text-[15px] text-warn">
-                    <span className="font-semibold">Trade-off: </span>
+                  <p className="text-base text-warn">
+                    <span className="font-bold">Trade-off: </span>
                     {s.tradeoff}
                   </p>
                 )}
@@ -83,31 +100,29 @@ export function PlanView({ plan }: { plan: Plan }) {
                   {s.backup && <span>Backup: {s.backup.name}</span>}
                 </div>
               </article>
-              <div className="hidden pt-4 text-right text-[15px] font-semibold tabular-nums sm:block">{s.cost ? inr(s.cost) : "Free"}</div>
+              <div className="hidden pt-4 text-right text-lg font-bold tabular-nums sm:block">{s.cost ? inr(s.cost) : "Free"}</div>
             </div>
-            {s.travelToNext ? (
-              <div className="grid grid-cols-[56px_minmax(0,1fr)] gap-3 py-2 sm:grid-cols-[68px_minmax(0,1fr)] sm:gap-5">
-                <span />
-                <span className="pl-5 text-sm text-muted tabular-nums">
-                  {s.travelToNext.mode === "walk" ? "Walk" : "Cab"} {s.travelToNext.minutes} min{s.travelToNext.fare ? `, about ${inr(s.travelToNext.fare)}` : ""}
+            {i < plan.stops.length - 1 && (
+              <div className="grid grid-cols-[76px_minmax(0,1fr)] gap-3 sm:grid-cols-[104px_minmax(0,1fr)] sm:gap-5" aria-hidden={!s.travelToNext}>
+                <span className="mx-auto h-full min-h-7 w-0 border-l-2 border-dashed border-muted/60" />
+                <span className="self-center py-2 text-sm text-muted tabular-nums">
+                  {s.travelToNext ? `${s.travelToNext.mode === "walk" ? "Walk" : "Cab"} ${s.travelToNext.minutes} min${s.travelToNext.fare ? `, about ${inr(s.travelToNext.fare)}` : ""}` : ""}
                 </span>
               </div>
-            ) : (
-              i < plan.stops.length - 1 && <div className="h-3" />
             )}
           </li>
         ))}
       </ol>
 
       {plan.stops.some((s) => s.source === "mock") && (
-        <p className="rounded-xl bg-warn/10 px-4 py-3 text-sm text-warn">
+        <p className="rounded-xl bg-warn/10 px-4 py-3 text-[15px] text-warn">
           Stops marked <strong>Sample data</strong> are fictional venues, added to show coverage while more real data sources are connected. Everything else is a real place.
         </p>
       )}
 
       {plan.warnings.length > 0 && (
-        <details className="rounded-xl border border-line bg-surface px-4 py-3 text-sm">
-          <summary className="cursor-pointer font-medium text-warn">Things to know ({plan.warnings.length})</summary>
+        <details className="rounded-xl border border-line bg-surface px-4 py-3 text-[15px]">
+          <summary className="cursor-pointer font-bold text-warn">Things to know ({plan.warnings.length})</summary>
           <ul className="mt-2 list-disc space-y-1 pl-5 text-muted">
             {plan.warnings.map((w, i) => (
               <li key={i}>{w}</li>
@@ -117,17 +132,7 @@ export function PlanView({ plan }: { plan: Plan }) {
       )}
 
       <div className="space-y-3 border-t border-line pt-4">
-        <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1 text-base tabular-nums">
-          <span>
-            <strong className={overBudget ? "text-warn" : ""}>{inr(plan.totals.cost)}</strong>
-            <span className="text-muted">{plan.totals.budget ? ` of ${inr(plan.totals.budget)}` : ""}, cabs included</span>
-          </span>
-          <span>
-            <strong className={overTime ? "text-warn" : ""}>{dur(plan.totals.minutes)}</strong>
-            <span className="text-muted">{plan.totals.availableMinutes ? ` of ${dur(plan.totals.availableMinutes)}` : ""}</span>
-          </span>
-          {!overBudget && !overTime && !plan.warnings.length && <span className="font-semibold text-good">All constraints met</span>}
-        </div>
+        {allMet && <p className="font-bold text-good">All constraints met: budget, time with travel, opening hours, diet and crowds.</p>}
         <DataLegend plan={plan} />
       </div>
     </div>
@@ -139,10 +144,19 @@ const TWEAKS = ["Cheaper", "More outdoor", "Add live music", "Swap lunch spot", 
 export function RefineBox({ onSubmit, disabled, runId }: { onSubmit: (text: string) => void; disabled: boolean; runId: string | null }) {
   const [text, setText] = useState("");
   const [rated, setRated] = useState<"up" | "down" | null>(null);
+  const [hint, setHint] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const submit = (t: string) => {
-    if (!t.trim() || disabled) return;
+    if (disabled) return;
+    if (!t.trim()) {
+      // Never a dead button: an empty submit points the person at the field.
+      setHint(true);
+      inputRef.current?.focus();
+      return;
+    }
     onSubmit(t.trim());
     setText("");
+    setHint(false);
     setRated(null);
   };
   const rate = async (rating: "up" | "down") => {
@@ -163,25 +177,37 @@ export function RefineBox({ onSubmit, disabled, runId }: { onSubmit: (text: stri
         </label>
         <input
           id="refine"
+          ref={inputRef}
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          aria-describedby={hint ? "refine-hint" : undefined}
+          onChange={(e) => {
+            setText(e.target.value);
+            if (hint) setHint(false);
+          }}
           placeholder="Change anything: cheaper, start at 2pm, I'm in Gurugram now…"
           className="h-11 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted"
           maxLength={400}
         />
-        <button type="submit" disabled={disabled || !text.trim()} className="flex h-11 items-center gap-2 rounded-xl bg-accent px-4 text-[15px] font-semibold text-accent-ink disabled:opacity-50">
+        <button type="submit" disabled={disabled} className="flex h-11 items-center gap-2 rounded-xl bg-accent px-4 text-[15px] font-bold text-accent-ink transition-transform active:scale-[0.98] disabled:opacity-50">
           <span className="hidden sm:inline">Update plan</span>
           <ArrowRightIcon />
           <span className="sr-only sm:hidden">Update plan</span>
         </button>
       </form>
-      <div className="flex flex-wrap items-center gap-2">
-        {TWEAKS.map((t) => (
-          <button key={t} type="button" disabled={disabled} onClick={() => submit(t)} className="h-9 rounded-full border border-line-strong bg-surface px-3.5 text-sm hover:border-accent disabled:opacity-50">
-            {t}
-          </button>
-        ))}
-        <span className="ml-auto flex gap-2">
+      {hint && (
+        <p id="refine-hint" role="status" className="text-sm text-warn">
+          Type what to change first, or tap one of the quick changes below.
+        </p>
+      )}
+      <div className="flex items-center gap-2">
+        <div className="-my-1 flex min-w-0 flex-1 gap-2 overflow-x-auto py-1 sm:flex-wrap" aria-label="Quick changes">
+          {TWEAKS.map((t) => (
+            <button key={t} type="button" disabled={disabled} onClick={() => submit(t)} className="h-9 flex-none rounded-full border border-line-strong bg-surface px-3.5 text-sm whitespace-nowrap hover:border-accent disabled:opacity-50">
+              {t}
+            </button>
+          ))}
+        </div>
+        <span className="flex flex-none gap-2">
           <button type="button" aria-label="Good plan" aria-pressed={rated === "up"} onClick={() => rate("up")} className={`flex h-11 w-11 items-center justify-center rounded-xl border ${rated === "up" ? "border-good text-good" : "border-line-strong text-muted"}`}>
             <ThumbUpIcon />
           </button>

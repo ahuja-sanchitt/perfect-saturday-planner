@@ -69,7 +69,7 @@ export function ThinkingCard({ trace, startedAt, onShowTrace }: { trace: TraceIt
         <div className="flex items-start gap-3">
           <Sparkle size={22} spinning className="mt-0.5 flex-none text-accent" />
           <div className="min-w-0 flex-1">
-            <p key={s.phrase} className="status-in font-display text-lg font-semibold">{s.phrase}…</p>
+            <p key={s.phrase} className="status-in font-display text-lg">{s.phrase}…</p>
             <p className="mt-0.5 text-sm text-muted tabular-nums">
               {s.headline ? <span className="text-ink/80">{s.headline} · </span> : null}
               {meta(s)}

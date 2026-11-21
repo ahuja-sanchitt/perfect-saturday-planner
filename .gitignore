@@ -44,3 +44,7 @@ next-env.d.ts
 
 .vercel
 .env*
+
+# Impeccable working files (surfaces/, PRODUCT.md, DESIGN.md are committed)
+/.impeccable/tmp/
+/.impeccable/decision/

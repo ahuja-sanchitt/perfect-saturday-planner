@@ -1,51 +1,63 @@
 @import "tailwindcss";
 
 /*
- * Design tokens (OKLCH, roles not swatches). Light by default: people plan a Saturday on their
- * phone in daylight. The agent console is the one deliberately dark region.
- * Accent = Delhi saffron/terracotta, reserved for the primary action and focus.
+ * Picture Palace: your Saturday billed like a hand-painted Delhi single-screen show.
+ * Enamel-paint fields on a near-white ground. Roles, not swatches:
+ *   night  (indigo ink)   structure, header bar, showtime tiles
+ *   saffron               the bill field that carries the plan title
+ *   accent (magenta)      the primary action and focus only
+ *   console (teal)        owns the whole agent-console region
+ *   marquee (yellow)      showtime numerals and console highlights
+ * Light by default: people plan on a phone in daylight.
  */
 :root {
-  --bg: oklch(0.985 0.002 250);
-  --surface: oklch(1 0 0);
-  --subtle: oklch(0.955 0.004 250);
-  --ink: oklch(0.22 0.012 260);
-  --muted: oklch(0.47 0.013 260);
-  --line: oklch(0.915 0.005 250);
-  --line-strong: oklch(0.84 0.008 250);
-  --accent: oklch(0.55 0.155 42);
-  --accent-ink: oklch(0.99 0.005 42);
-  --accent-soft: oklch(0.95 0.03 42);
-  --good: oklch(0.47 0.1 150);
-  --warn: oklch(0.51 0.12 62);
-  --bad: oklch(0.51 0.17 27);
+  --bg: #fafaf8;
+  --surface: #ffffff;
+  --subtle: #f1f1ee;
+  --ink: #1b1a2e;
+  --muted: #57556a;
+  --line: #e4e2dc;
+  --line-strong: #cfccc4;
+  --accent: #b5245b;
+  --accent-ink: #ffffff;
+  --accent-soft: #f7e4ec;
+  --good: #1f6f78;
+  --warn: #a64a10;
+  --bad: #b42318;
+  --night: #1b1a2e;
+  --night-ink: #f3f1ea;
+  --saffron: #e8762a;
+  --saffron-ink: #1b1a2e;
+  --saffron-muted: #3d2414;
+  --marquee: #f2c230;
   /* console */
-  --c-bg: oklch(0.205 0.012 260);
-  --c-line: oklch(0.29 0.012 260);
-  --c-ink: oklch(0.9 0.008 260);
-  --c-muted: oklch(0.7 0.012 260);
-  --c-good: oklch(0.79 0.1 155);
-  --c-bad: oklch(0.76 0.11 30);
-  --c-info: oklch(0.8 0.07 240);
+  --c-bg: #17565d;
+  --c-line: #23707a;
+  --c-ink: #eef7f6;
+  --c-muted: #c3e2e0;
+  --c-good: #a8f0c6;
+  --c-bad: #ffb8ad;
+  --c-info: #f2c230;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: oklch(0.18 0.007 260);
-    --surface: oklch(0.215 0.008 260);
-    --subtle: oklch(0.255 0.009 260);
-    --ink: oklch(0.94 0.005 260);
-    --muted: oklch(0.73 0.01 260);
-    --line: oklch(0.3 0.009 260);
-    --line-strong: oklch(0.38 0.011 260);
-    --accent: oklch(0.71 0.14 45);
-    --accent-ink: oklch(0.18 0.02 45);
-    --accent-soft: oklch(0.3 0.05 45);
-    --good: oklch(0.77 0.11 150);
-    --warn: oklch(0.79 0.11 72);
-    --bad: oklch(0.73 0.14 27);
-    --c-bg: oklch(0.15 0.008 260);
-    --c-line: oklch(0.25 0.01 260);
+    --bg: #141327;
+    --surface: #1e1c35;
+    --subtle: #29274a;
+    --ink: #f3f1ea;
+    --muted: #bab7cd;
+    --line: #2f2d4d;
+    --line-strong: #43416a;
+    --accent: #e8679a;
+    --accent-ink: #1b0d16;
+    --accent-soft: #3a1f33;
+    --good: #74c9d2;
+    --warn: #f4a46c;
+    --bad: #f28b82;
+    --night: #0e0d1d;
+    --c-bg: #0f3e43;
+    --c-line: #1b5960;
   }
 }
 
@@ -63,6 +75,12 @@
   --color-good: var(--good);
   --color-warn: var(--warn);
   --color-bad: var(--bad);
+  --color-night: var(--night);
+  --color-night-ink: var(--night-ink);
+  --color-saffron: var(--saffron);
+  --color-saffron-ink: var(--saffron-ink);
+  --color-saffron-muted: var(--saffron-muted);
+  --color-marquee: var(--marquee);
   --color-c-bg: var(--c-bg);
   --color-c-line: var(--c-line);
   --color-c-ink: var(--c-ink);
@@ -83,21 +101,42 @@ body {
 
 body {
   font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 16px;
   line-height: 1.5;
 }
 
 h1, h2, h3 { text-wrap: balance; }
 p, li { text-wrap: pretty; }
 
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
+/* Browser surfaces carry the world too */
+::selection { background: var(--marquee); color: var(--night); }
+input, textarea { caret-color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+a { text-underline-offset: 4px; }
+* { scrollbar-color: var(--line-strong) transparent; scrollbar-width: thin; }
+.console-scroll { scrollbar-color: var(--c-line) transparent; }
 
 /*
- * The one authored motion moment: the agent's "thinking" sparkle plus the status line that
- * rises in each time the agent moves to a new step. Everything else stays still.
+ * The one authored moment: the bill paints in. When a plan lands, the saffron field is brushed
+ * across from the left behind text that is already visible. During runs, the agent's sparkle turns
+ * and the status line rises in on each new step.
  */
+.bill { position: relative; isolation: isolate; }
+.bill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--saffron);
+  transform-origin: left center;
+  animation: paint-in 820ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes paint-in {
+  from { transform: scaleX(0.04); }
+  to { transform: scaleX(1); }
+}
+
 @keyframes sparkle-turn {
   0% { transform: rotate(0deg) scale(0.86); }
   50% { transform: rotate(90deg) scale(1); }
@@ -111,7 +150,6 @@ p, li { text-wrap: pretty; }
 }
 .status-in { animation: status-in 380ms cubic-bezier(0.16, 1, 0.3, 1) both; }
 
-/* Loading placeholders (a functional state, kept subtle) */
 @keyframes skeleton-fade {
   0%, 100% { opacity: 0.55; }
   50% { opacity: 1; }
@@ -119,5 +157,5 @@ p, li { text-wrap: pretty; }
 .skeleton { background: var(--subtle); animation: skeleton-fade 1.8s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .sparkle, .status-in, .skeleton { animation: none; }
+  .bill::before, .sparkle, .status-in, .skeleton { animation: none; }
 }

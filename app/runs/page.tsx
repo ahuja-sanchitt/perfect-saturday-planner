@@ -33,7 +33,7 @@ export default function RunsPage() {
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-8">
       <div className="flex items-baseline justify-between gap-4">
-        <h1 className="font-display text-2xl font-semibold">Agent runs</h1>
+        <h1 className="font-display text-2xl">Agent runs</h1>
         <Link href="/" className="text-sm font-medium text-accent hover:underline">Back to planner</Link>
       </div>
       <p className="text-sm text-muted">{data?.note ?? "Loading…"}</p>

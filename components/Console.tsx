@@ -17,7 +17,7 @@ export function Console({ trace, stats, status, promptVersions, className = "" }
   return (
     <section aria-label="Agent console" className={`flex min-h-0 flex-col bg-c-bg text-c-ink ${className}`}>
       <div className="flex items-center justify-between gap-3 border-b border-c-line px-5 py-4">
-        <h2 className="font-display text-[15px] font-semibold text-white">Agent console</h2>
+        <h2 className="font-display text-[22px] leading-none text-marquee">Agent console</h2>
         <span className="flex items-center gap-2 text-[13px] text-c-muted">
           {status === "running" && <Sparkle size={14} spinning className="text-c-info" />}
           <span className={status === "running" ? "text-c-info" : status === "idle" ? "" : "text-c-good"}>{statusLabel}</span>
@@ -45,7 +45,7 @@ export function Console({ trace, stats, status, promptVersions, className = "" }
           if (it.kind === "thinking")
             return (
               <p key={i} className="pl-6 text-c-muted italic">
-                {it.text.replace(/\*\*/g, "")}
+                {clampThought(it.text)}
               </p>
             );
           if (it.kind === "message")
@@ -92,6 +92,12 @@ export function Console({ trace, stats, status, promptVersions, className = "" }
       </dl>
     </section>
   );
+}
+
+/** Reasoning summaries can run long; keep the headline plus ~220 characters so the trace stays scannable. */
+function clampThought(text: string): string {
+  const plain = text.replace(/\*\*/g, "").replace(/\s+/g, " ").trim();
+  return plain.length > 220 ? `${plain.slice(0, 220).replace(/\s+\S*$/, "")}…` : plain;
 }
 
 function Stat({ label, value, sub, good }: { label: string; value: string; sub?: string; good?: boolean }) {

@@ -87,7 +87,6 @@ export function usePlanner() {
       case "plan":
         setPlan(e.plan);
         setPrefs(e.prefs);
-        setNotice(null);
         setStatus("done");
         break;
       case "done":
@@ -177,5 +176,16 @@ export function usePlanner() {
     [send, plan, prefs],
   );
 
-  return { status, trace, plan, prefs, stats, runId, promptVersions, questions, notice, changes, startedAt, start, answer, refine };
+  /** Replays a recorded production run (public/replay-run.json). No live call is made; the UI says so. */
+  const replay = useCallback(async () => {
+    const res = await fetch("/replay-run.json").catch(() => null);
+    if (!res?.ok) return;
+    const data = (await res.json()) as { events: TraceEvent[] };
+    setTrace([{ kind: "divider", text: "Replay of a recorded run" }]);
+    setStatus("running");
+    for (const e of data.events) handle(e);
+    setNotice({ text: "This is a replay of a recorded production run, shown instantly. Plan your own Saturday to run the live agent.", level: "info" });
+  }, [handle]);
+
+  return { status, trace, plan, prefs, stats, runId, promptVersions, questions, notice, changes, startedAt, start, answer, refine, replay };
 }

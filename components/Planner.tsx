@@ -1,5 +1,5 @@
 "use client";
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Console } from "./Console";
 import { PlanView, RefineBox } from "./PlanView";
 import { PanelIcon, Sparkle, SunIcon } from "./icons";
@@ -41,7 +41,18 @@ export function Planner() {
   const consoleOpen = useSyncExternalStore(subscribeStorage, readConsolePref, () => true);
   const [tab, setTab] = useState<"plan" | "trace">("plan");
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [inputOpen, setInputOpen] = useState(false);
+  const [emptyHint, setEmptyHint] = useState(false); // after a plan lands, the request collapses to one line
   const running = p.status === "running";
+
+  // ?replay=1 shows a recorded production run instantly (labelled as a replay).
+  const { replay } = p;
+  const replayed = useRef(false); // StrictMode runs effects twice in dev; replay exactly once
+  useEffect(() => {
+    if (replayed.current || new URLSearchParams(window.location.search).get("replay") !== "1") return;
+    replayed.current = true;
+    void replay();
+  }, [replay]);
 
   const toggleConsole = () => {
     try {
@@ -53,15 +64,22 @@ export function Planner() {
   const submit = () => {
     if (running) return;
     setAnswers({});
+    setInputOpen(false);
     if (useForm) {
       const constraints = (form.constraints ?? []).filter(Boolean);
       p.start(text, { ...form, area: form.area || undefined, constraints });
     } else if (text.trim()) p.start(text.trim());
+    else {
+      // Never a dead button: point the person at the field instead.
+      setEmptyHint(true);
+      document.getElementById("describe")?.focus();
+    }
   };
 
   const runExample = (ex: (typeof EXAMPLES)[number]) => {
     if (running) return;
     setAnswers({});
+    setInputOpen(false);
     if (ex.form) {
       setUseForm(true);
       setForm({ ...form, ...ex.form });
@@ -84,17 +102,19 @@ export function Planner() {
     <div className="flex h-dvh flex-col lg:flex-row">
       {/* ---------------- Main (plan) column ---------------- */}
       <main className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between gap-3 border-b border-line px-4 py-3.5 sm:px-8">
-          <div className="flex items-center gap-2.5">
-            <SunIcon className="text-accent" />
-            <span className="font-display text-xl font-semibold tracking-[-0.02em]">Perfect Saturday</span>
-            <span className="rounded-full bg-subtle px-2 py-0.5 text-xs font-semibold text-muted">Delhi NCR</span>
+        <header className="flex items-center justify-between gap-3 bg-night px-4 py-3 text-night-ink sm:px-8">
+          <div className="flex min-w-0 items-baseline gap-3">
+            <span className="flex items-center gap-2 self-center">
+              <SunIcon size={22} className="text-marquee" />
+              <span className="font-display text-[26px] leading-none text-marquee">Perfect Saturday</span>
+            </span>
+            <span className="hidden truncate text-sm text-night-ink/80 sm:inline">Delhi NCR</span>
           </div>
           <button
             type="button"
             onClick={toggleConsole}
             aria-pressed={consoleOpen}
-            className={`hidden h-10 items-center gap-2 rounded-xl border px-3.5 text-sm font-semibold lg:flex ${consoleOpen ? "border-c-bg bg-c-bg text-white" : "border-line-strong bg-surface text-ink"}`}
+            className={`hidden h-10 items-center gap-2 rounded-xl border px-3.5 text-sm font-bold lg:flex ${consoleOpen ? "border-marquee text-marquee" : "border-night-ink/40 text-night-ink"}`}
           >
             <PanelIcon />
             {consoleOpen ? "Hide agent console" : "Show agent console"}
@@ -104,17 +124,28 @@ export function Planner() {
         {/* Mobile tabs */}
         <div role="tablist" aria-label="View" className="mx-4 mt-3 flex gap-1 rounded-xl bg-subtle p-1 lg:hidden">
           {(["plan", "trace"] as const).map((t) => (
-            <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={`flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg text-[15px] font-semibold ${tab === t ? "bg-surface text-ink" : "text-muted"}`}>
-              {t === "plan" ? "Plan" : <>Agent trace{running && <Sparkle size={13} spinning className="text-accent" />}</>}
+            <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={`flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg text-[15px] font-bold ${tab === t ? (t === "trace" ? "bg-c-bg text-c-ink" : "bg-night text-marquee") : "text-muted"}`}>
+              {t === "plan" ? "Plan" : <>Agent trace{running && <Sparkle size={13} spinning className={tab === "trace" ? "text-marquee" : "text-accent"} />}</>}
             </button>
           ))}
         </div>
 
         <div className={`min-h-0 flex-1 overflow-y-auto ${tab === "trace" ? "hidden lg:block" : ""}`}>
-          {/* Input */}
+          {/* Input (collapses to one line once a plan exists) */}
+          {p.plan && !inputOpen ? (
+            <section className="flex items-center gap-3 border-b border-line px-4 py-3 sm:px-8">
+              <p className="min-w-0 flex-1 truncate text-[15px] text-muted">
+                <span className="font-bold text-ink">Your request: </span>
+                {requestSummary(text, useForm ? form : undefined, p.prefs)}
+              </p>
+              <button type="button" onClick={() => setInputOpen(true)} disabled={running} className="h-10 flex-none rounded-xl border border-line-strong px-3.5 text-sm font-bold hover:border-accent disabled:opacity-50">
+                New request
+              </button>
+            </section>
+          ) : (
           <section className="space-y-3 border-b border-line px-4 py-6 sm:px-8">
             <div className="flex items-center justify-between">
-              <label htmlFor="describe" className="text-sm font-semibold">
+              <label htmlFor="describe" className="text-base font-bold">
                 {useForm ? "Your preferences" : "Describe your Saturday"}
               </label>
               <button type="button" onClick={() => setUseForm((f) => !f)} className="text-sm font-medium text-accent underline-offset-4 hover:underline">
@@ -128,7 +159,11 @@ export function Planner() {
               <textarea
                 id="describe"
                 value={text}
-                onChange={(e) => setText(e.target.value)}
+                onChange={(e) => {
+                  setText(e.target.value);
+                  if (emptyHint) setEmptyHint(false);
+                }}
+                aria-describedby={emptyHint ? "describe-hint" : undefined}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
@@ -138,11 +173,16 @@ export function Planner() {
                 rows={2}
                 maxLength={1000}
                 placeholder="e.g. Tired but want something fun. ₹2,000, 4 hrs, South Delhi, veg, hate crowds"
-                className="w-full resize-none rounded-xl border border-line-strong bg-surface px-4 py-3 text-base outline-none placeholder:text-muted focus:border-accent"
+                className="w-full resize-none rounded-xl border-2 border-night/80 bg-surface px-4 py-3 text-base outline-none placeholder:text-muted focus:border-accent"
               />
             )}
+            {emptyHint && !useForm && (
+              <p id="describe-hint" role="status" className="text-sm text-warn">
+                Tell me a little about your Saturday first, or tap one of the examples.
+              </p>
+            )}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <button type="button" onClick={submit} disabled={running || (!useForm && !text.trim())} className="h-12 flex-none rounded-xl bg-accent px-6 text-base font-semibold text-accent-ink disabled:opacity-50">
+              <button type="button" onClick={submit} disabled={running} className="h-12 flex-none rounded-xl bg-accent px-6 text-base font-bold text-accent-ink transition-transform active:scale-[0.98] disabled:opacity-50">
                 {running ? "Planning…" : "Plan my Saturday"}
               </button>
               <div className="flex flex-wrap gap-2">
@@ -154,6 +194,7 @@ export function Planner() {
               </div>
             </div>
           </section>
+          )}
 
           {/* Output */}
           <section className="space-y-6 px-4 py-6 sm:px-8">
@@ -168,7 +209,7 @@ export function Planner() {
 
             {p.status === "clarify" && (
               <div className="space-y-5 rounded-2xl border border-line bg-surface p-5">
-                <h2 className="font-display text-lg font-semibold">Quick question{p.questions.length > 1 ? "s" : ""} before I plan</h2>
+                <h2 className="font-display text-lg">Quick question{p.questions.length > 1 ? "s" : ""} before I plan</h2>
                 {p.questions.map((q) => (
                   <div key={q.question} className="space-y-2">
                     <p className="text-base">{q.question}</p>
@@ -196,7 +237,7 @@ export function Planner() {
             )}
 
             {p.plan && (
-              <div className={`transition-opacity duration-300 ${running ? "pointer-events-none opacity-55" : ""}`} aria-busy={running}>
+              <div key={p.plan.title + p.plan.stops.map((x) => x.placeId).join()} className={`transition-opacity duration-300 ${running ? "pointer-events-none opacity-55" : ""}`} aria-busy={running}>
                 <PlanView plan={p.plan} />
               </div>
             )}
@@ -218,6 +259,13 @@ export function Planner() {
       {consoleOpen && <Console className="hidden w-[400px] flex-none lg:flex" trace={p.trace} stats={p.stats} status={p.status} promptVersions={p.promptVersions} />}
     </div>
   );
+}
+
+function requestSummary(text: string, form: FormInput | undefined, prefs: { area: string | null; budget: number | null; hours: number | null } | null): string {
+  if (text.trim()) return text.trim();
+  if (form) return [form.area, form.budget ? `₹${form.budget}` : null, form.hours ? `${form.hours} hrs` : null, form.mood, ...(form.interests ?? []), ...(form.constraints ?? [])].filter(Boolean).join(", ");
+  if (prefs) return [prefs.area, prefs.budget ? `₹${prefs.budget}` : null, prefs.hours ? `${prefs.hours} hrs` : null].filter(Boolean).join(", ");
+  return "";
 }
 
 function FormFields({ form, setForm }: { form: FormInput; setForm: (f: FormInput) => void }) {
@@ -271,7 +319,7 @@ function FormFields({ form, setForm }: { form: FormInput; setForm: (f: FormInput
 function EmptyState() {
   return (
     <div className="max-w-[65ch] space-y-4 py-4">
-      <h2 className="font-display text-2xl font-semibold tracking-[-0.02em] text-balance">Tell me your mood, budget and free time.</h2>
+      <h2 className="font-display text-[34px] leading-tight text-balance">Tell me your mood, budget and free time.</h2>
       <p className="text-base text-muted">I&apos;ll plan a realistic Saturday in Delhi NCR, check it against your budget, time, diet and crowd limits, and explain why each stop suits you.</p>
       <ul className="space-y-2 text-[15px] text-muted">
         <li>Places come from a local guide and OpenStreetMap, with live weather, air quality and travel times.</li>
