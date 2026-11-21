@@ -2,7 +2,7 @@
 
 An AI agent that plans a realistic, personalised Saturday in Delhi NCR. You describe your mood, budget, time, interests and constraints, and it returns a timed itinerary with a "why this fits you" line for each stop. A live **agent console** streams every LLM call, tool call, cache hit, validation failure and retry as it happens.
 
-**Live:** https://perfect-saturday-planner-tau.vercel.app · **Runs dashboard:** `/runs`
+**Live:** https://delhi-saturday.vercel.app · **Runs dashboard:** `/runs`
 
 ---
 
