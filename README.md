@@ -130,7 +130,7 @@ npm run dev                    # http://localhost:3000
 | `npm run ingest:osm` | Refresh the OpenStreetMap snapshot |
 | `npm run typecheck` / `npm run lint` | Static checks |
 
-URL options: `?replay=1` replays a recorded run, `?motion=off` disables animations, and `?tab=trace` opens the mobile trace tab.
+URL options: `?motion=off` disables animations, and `?tab=trace` opens the mobile trace tab.
 
 ## Project layout
 
